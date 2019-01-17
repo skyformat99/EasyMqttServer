@@ -114,7 +114,7 @@ public class BrokerServer {
 					SSLEngine sslEngine = sslContext.newEngine(socketChannel.alloc());
 					sslEngine.setUseClientMode(false);        // 服务端模式
 					sslEngine.setNeedClientAuth(false);        // 不需要验证客户端
-					channelPipeline.addLast("ssl", new SslHandler(sslEngine));
+					//channelPipeline.addLast("ssl", new SslHandler(sslEngine));
 					channelPipeline.addLast("decoder", new MqttDecoder());
 					channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
 					channelPipeline.addLast("broker", new BrokerHandler(protocolProcess));

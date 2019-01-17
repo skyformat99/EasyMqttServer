@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.security.interfaces.RSAPrivateKey;
+import java.util.Objects;
 
 /**
  * 用户名和密码认证服务
@@ -28,12 +29,12 @@ public class AuthService implements IAuthService {
 		if (StrUtil.isBlank(password)) return false;
 		RSA rsa = new RSA(privateKey, null);
 		String value = rsa.encryptStr(username, KeyType.PrivateKey);
-		return value.equals(password) ? true : false;
+		return value.equals(password);
 	}
 
 	@PostConstruct
 	public void init() {
-		privateKey = IoUtil.readObj(AuthService.class.getClassLoader().getResourceAsStream("keystore/auth-private.key"));
+		privateKey = IoUtil.readObj(Objects.requireNonNull(AuthService.class.getClassLoader().getResourceAsStream("keystore/auth-private.key")));
 	}
 
 }
