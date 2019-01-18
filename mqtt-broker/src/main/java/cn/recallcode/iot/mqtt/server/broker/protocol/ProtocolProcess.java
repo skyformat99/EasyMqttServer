@@ -21,122 +21,132 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProtocolProcess {
 
-	@Autowired
-	private ISessionStoreService sessionStoreService;
+    @Autowired
+    private ISessionStoreService sessionStoreService;
 
-	@Autowired
-	private ISubscribeStoreService subscribeStoreService;
+    @Autowired
+    private ISubscribeStoreService subscribeStoreService;
 
-	@Autowired
-	private IAuthService authService;
+    @Autowired
+    private IAuthService authService;
 
-	@Autowired
-	private IMessageIdService messageIdService;
+    @Autowired
+    private IMessageIdService messageIdService;
 
-	@Autowired
-	private IRetainMessageStoreService messageStoreService;
+    @Autowired
+    private IRetainMessageStoreService messageStoreService;
 
-	@Autowired
-	private IDupPublishMessageStoreService dupPublishMessageStoreService;
+    @Autowired
+    private IDupPublishMessageStoreService dupPublishMessageStoreService;
 
-	@Autowired
-	private IDupPubRelMessageStoreService dupPubRelMessageStoreService;
+    @Autowired
+    private IDupPubRelMessageStoreService dupPubRelMessageStoreService;
 
-	@Autowired
-	private InternalCommunication internalCommunication;
+    @Autowired
+    private InternalCommunication internalCommunication;
 
-	private Connect connect;
+    private Connect connect;
 
-	private Subscribe subscribe;
+    private ConnAck connAck;
 
-	private UnSubscribe unSubscribe;
+    private Subscribe subscribe;
 
-	private Publish publish;
+    private UnSubscribe unSubscribe;
 
-	private DisConnect disConnect;
+    private Publish publish;
 
-	private PingReq pingReq;
+    private DisConnect disConnect;
 
-	private PubRel pubRel;
+    private PingReq pingReq;
 
-	private PubAck pubAck;
+    private PubRel pubRel;
 
-	private PubRec pubRec;
+    private PubAck pubAck;
 
-	private PubComp pubComp;
+    private PubRec pubRec;
 
-	public Connect connect() {
-		if (connect == null) {
-			connect = new Connect(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
-		}
-		return connect;
-	}
+    private PubComp pubComp;
 
-	public Subscribe subscribe() {
-		if (subscribe == null) {
-			subscribe = new Subscribe(subscribeStoreService, messageIdService, messageStoreService);
-		}
-		return subscribe;
-	}
+    public Connect connect() {
+        if (connect == null) {
+            connect = new Connect(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
+        }
+        return connect;
+    }
 
-	public UnSubscribe unSubscribe() {
-		if (unSubscribe == null) {
-			unSubscribe = new UnSubscribe(subscribeStoreService);
-		}
-		return unSubscribe;
-	}
+    public ConnAck connAck() {
+        if (connAck == null) {
+            connAck = new ConnAck(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
+        }
+        return connAck;
 
-	public Publish publish() {
-		if (publish == null) {
-			publish = new Publish(sessionStoreService, subscribeStoreService, messageIdService, messageStoreService, dupPublishMessageStoreService, internalCommunication);
-		}
-		return publish;
-	}
+    }
 
-	public DisConnect disConnect() {
-		if (disConnect == null) {
-			disConnect = new DisConnect(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService);
-		}
-		return disConnect;
-	}
+    public Subscribe subscribe() {
+        if (subscribe == null) {
+            subscribe = new Subscribe(subscribeStoreService, messageIdService, messageStoreService);
+        }
+        return subscribe;
+    }
 
-	public PingReq pingReq() {
-		if (pingReq == null) {
-			pingReq = new PingReq();
-		}
-		return pingReq;
-	}
+    public UnSubscribe unSubscribe() {
+        if (unSubscribe == null) {
+            unSubscribe = new UnSubscribe(subscribeStoreService);
+        }
+        return unSubscribe;
+    }
 
-	public PubRel pubRel() {
-		if (pubRel == null) {
-			pubRel = new PubRel();
-		}
-		return pubRel;
-	}
+    public Publish publish() {
+        if (publish == null) {
+            publish = new Publish(sessionStoreService, subscribeStoreService, messageIdService, messageStoreService, dupPublishMessageStoreService, internalCommunication);
+        }
+        return publish;
+    }
 
-	public PubAck pubAck() {
-		if (pubAck == null) {
-			pubAck = new PubAck(messageIdService, dupPublishMessageStoreService);
-		}
-		return pubAck;
-	}
+    public DisConnect disConnect() {
+        if (disConnect == null) {
+            disConnect = new DisConnect(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService);
+        }
+        return disConnect;
+    }
 
-	public PubRec pubRec() {
-		if (pubRec == null) {
-			pubRec = new PubRec(dupPublishMessageStoreService, dupPubRelMessageStoreService);
-		}
-		return pubRec;
-	}
+    public PingReq pingReq() {
+        if (pingReq == null) {
+            pingReq = new PingReq();
+        }
+        return pingReq;
+    }
 
-	public PubComp pubComp() {
-		if (pubComp == null) {
-			pubComp = new PubComp(messageIdService, dupPubRelMessageStoreService);
-		}
-		return pubComp;
-	}
+    public PubRel pubRel() {
+        if (pubRel == null) {
+            pubRel = new PubRel();
+        }
+        return pubRel;
+    }
 
-	public ISessionStoreService getSessionStoreService() {
-		return sessionStoreService;
-	}
+    public PubAck pubAck() {
+        if (pubAck == null) {
+            pubAck = new PubAck(messageIdService, dupPublishMessageStoreService);
+        }
+        return pubAck;
+    }
+
+    public PubRec pubRec() {
+        if (pubRec == null) {
+            pubRec = new PubRec(dupPublishMessageStoreService, dupPubRelMessageStoreService);
+        }
+        return pubRec;
+    }
+
+    public PubComp pubComp() {
+        if (pubComp == null) {
+            pubComp = new PubComp(messageIdService, dupPubRelMessageStoreService);
+        }
+        return pubComp;
+    }
+
+    public ISessionStoreService getSessionStoreService() {
+        return sessionStoreService;
+    }
 
 }

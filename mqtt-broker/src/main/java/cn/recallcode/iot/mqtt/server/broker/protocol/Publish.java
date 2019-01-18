@@ -3,7 +3,6 @@
  */
 
 package cn.recallcode.iot.mqtt.server.broker.protocol;
-
 import cn.recallcode.iot.mqtt.server.broker.internal.InternalCommunication;
 import cn.recallcode.iot.mqtt.server.broker.internal.InternalMessage;
 import cn.recallcode.iot.mqtt.server.common.message.DupPublishMessageStore;
@@ -59,13 +58,14 @@ public class Publish {
 	}
 
 	public void processPublish(Channel channel, MqttPublishMessage msg) {
+		System.out.println("publish:"+msg.toString());
 		// QoS=0
 		if (msg.fixedHeader().qosLevel() == MqttQoS.AT_MOST_ONCE) {
 			byte[] messageBytes = new byte[msg.payload().readableBytes()];
 			msg.payload().getBytes(msg.payload().readerIndex(), messageBytes);
 			InternalMessage internalMessage = new InternalMessage().setTopic(msg.variableHeader().topicName())
-				.setMqttQoS(msg.fixedHeader().qosLevel().value()).setMessageBytes(messageBytes)
-				.setDup(false).setRetain(false);
+					.setMqttQoS(msg.fixedHeader().qosLevel().value()).setMessageBytes(messageBytes)
+					.setDup(false).setRetain(false);
 			internalCommunication.internalSend(internalMessage);
 			this.sendPublishMessage(msg.variableHeader().topicName(), msg.fixedHeader().qosLevel(), messageBytes, false, false);
 		}
@@ -74,8 +74,8 @@ public class Publish {
 			byte[] messageBytes = new byte[msg.payload().readableBytes()];
 			msg.payload().getBytes(msg.payload().readerIndex(), messageBytes);
 			InternalMessage internalMessage = new InternalMessage().setTopic(msg.variableHeader().topicName())
-				.setMqttQoS(msg.fixedHeader().qosLevel().value()).setMessageBytes(messageBytes)
-				.setDup(false).setRetain(false);
+					.setMqttQoS(msg.fixedHeader().qosLevel().value()).setMessageBytes(messageBytes)
+					.setDup(false).setRetain(false);
 			internalCommunication.internalSend(internalMessage);
 			this.sendPublishMessage(msg.variableHeader().topicName(), msg.fixedHeader().qosLevel(), messageBytes, false, false);
 			this.sendPubAckMessage(channel, msg.variableHeader().packetId());
@@ -85,8 +85,8 @@ public class Publish {
 			byte[] messageBytes = new byte[msg.payload().readableBytes()];
 			msg.payload().getBytes(msg.payload().readerIndex(), messageBytes);
 			InternalMessage internalMessage = new InternalMessage().setTopic(msg.variableHeader().topicName())
-				.setMqttQoS(msg.fixedHeader().qosLevel().value()).setMessageBytes(messageBytes)
-				.setDup(false).setRetain(false);
+					.setMqttQoS(msg.fixedHeader().qosLevel().value()).setMessageBytes(messageBytes)
+					.setDup(false).setRetain(false);
 			internalCommunication.internalSend(internalMessage);
 			this.sendPublishMessage(msg.variableHeader().topicName(), msg.fixedHeader().qosLevel(), messageBytes, false, false);
 			this.sendPubRecMessage(channel, msg.variableHeader().packetId());
@@ -99,7 +99,7 @@ public class Publish {
 				retainMessageStoreService.remove(msg.variableHeader().topicName());
 			} else {
 				RetainMessageStore retainMessageStore = new RetainMessageStore().setTopic(msg.variableHeader().topicName()).setMqttQoS(msg.fixedHeader().qosLevel().value())
-					.setMessageBytes(messageBytes);
+						.setMessageBytes(messageBytes);
 				retainMessageStoreService.put(msg.variableHeader().topicName(), retainMessageStore);
 			}
 		}
@@ -113,30 +113,30 @@ public class Publish {
 				MqttQoS respQoS = mqttQoS.value() > subscribeStore.getMqttQoS() ? MqttQoS.valueOf(subscribeStore.getMqttQoS()) : mqttQoS;
 				if (respQoS == MqttQoS.AT_MOST_ONCE) {
 					MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
-						new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
-						new MqttPublishVariableHeader(topic, 0), Unpooled.buffer().writeBytes(messageBytes));
+							new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
+							new MqttPublishVariableHeader(topic, 0), Unpooled.buffer().writeBytes(messageBytes));
 					LOGGER.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}", subscribeStore.getClientId(), topic, respQoS.value());
 					sessionStoreService.get(subscribeStore.getClientId()).getChannel().writeAndFlush(publishMessage);
 				}
 				if (respQoS == MqttQoS.AT_LEAST_ONCE) {
 					int messageId = messageIdService.getNextMessageId();
 					MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
-						new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
-						new MqttPublishVariableHeader(topic, messageId), Unpooled.buffer().writeBytes(messageBytes));
+							new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
+							new MqttPublishVariableHeader(topic, messageId), Unpooled.buffer().writeBytes(messageBytes));
 					LOGGER.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}, messageId: {}", subscribeStore.getClientId(), topic, respQoS.value(), messageId);
 					DupPublishMessageStore dupPublishMessageStore = new DupPublishMessageStore().setClientId(subscribeStore.getClientId())
-						.setTopic(topic).setMqttQoS(respQoS.value()).setMessageBytes(messageBytes);
+							.setTopic(topic).setMqttQoS(respQoS.value()).setMessageBytes(messageBytes);
 					dupPublishMessageStoreService.put(subscribeStore.getClientId(), dupPublishMessageStore);
 					sessionStoreService.get(subscribeStore.getClientId()).getChannel().writeAndFlush(publishMessage);
 				}
 				if (respQoS == MqttQoS.EXACTLY_ONCE) {
 					int messageId = messageIdService.getNextMessageId();
 					MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
-						new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
-						new MqttPublishVariableHeader(topic, messageId), Unpooled.buffer().writeBytes(messageBytes));
+							new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
+							new MqttPublishVariableHeader(topic, messageId), Unpooled.buffer().writeBytes(messageBytes));
 					LOGGER.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}, messageId: {}", subscribeStore.getClientId(), topic, respQoS.value(), messageId);
 					DupPublishMessageStore dupPublishMessageStore = new DupPublishMessageStore().setClientId(subscribeStore.getClientId())
-						.setTopic(topic).setMqttQoS(respQoS.value()).setMessageBytes(messageBytes);
+							.setTopic(topic).setMqttQoS(respQoS.value()).setMessageBytes(messageBytes);
 					dupPublishMessageStoreService.put(subscribeStore.getClientId(), dupPublishMessageStore);
 					sessionStoreService.get(subscribeStore.getClientId()).getChannel().writeAndFlush(publishMessage);
 				}
@@ -146,15 +146,15 @@ public class Publish {
 
 	private void sendPubAckMessage(Channel channel, int messageId) {
 		MqttPubAckMessage pubAckMessage = (MqttPubAckMessage) MqttMessageFactory.newMessage(
-			new MqttFixedHeader(MqttMessageType.PUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
-			MqttMessageIdVariableHeader.from(messageId), null);
+				new MqttFixedHeader(MqttMessageType.PUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
+				MqttMessageIdVariableHeader.from(messageId), null);
 		channel.writeAndFlush(pubAckMessage);
 	}
 
 	private void sendPubRecMessage(Channel channel, int messageId) {
 		MqttMessage pubRecMessage = MqttMessageFactory.newMessage(
-			new MqttFixedHeader(MqttMessageType.PUBREC, false, MqttQoS.AT_MOST_ONCE, false, 0),
-			MqttMessageIdVariableHeader.from(messageId), null);
+				new MqttFixedHeader(MqttMessageType.PUBREC, false, MqttQoS.AT_MOST_ONCE, false, 0),
+				MqttMessageIdVariableHeader.from(messageId), null);
 		channel.writeAndFlush(pubRecMessage);
 	}
 

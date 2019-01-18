@@ -1,5 +1,6 @@
-# iot-mqtt-server
-
+# EasyLinkerMqttServerV0.0.1
+### 本项目基于 [点击查看原项目](https://gitee.com/recallcode/iot-mqtt-server/releases "本项目来源")开发，向作者表示感谢
+###  MQTT文档: https://mcxiaoke.gitbooks.io/mqtt-cn/content/
 #### 项目介绍
 轻量级物联网MQTT服务器, 快速部署, 支持集群.
 
@@ -15,26 +16,23 @@ iot-mqtt-server
   ├── mqtt-auth -- MQTT服务连接时用户名和密码认证
   ├── mqtt-broker -- MQTT服务器功能的核心实现
   ├── mqtt-common -- 公共类及其他模块使用的服务接口及对象
-  ├── mqtt-store -- MQTT服务器会话信息, 主题信息等内容的持久化存储
+  ├── mqtt-store -- MQTT服务器会话信息, 主题信息等内容的持久化存储,使用了:ignite
 ```
-
-
 #### 功能说明
 1. 参考MQTT3.1.1规范实现
 2. 完整的QoS服务质量等级实现
 3. 遗嘱消息, 保留消息及消息分发重试
 4. 心跳机制
 5. 连接认证(强制开启)
-5. SSL方式连接(不支持非SSL连接)
+5. SSL方式连接(不支持非SSL连接)(非SSl链接形式正在研发)
 6. 主题过滤(未完全实现标准: 以#或+符号开头的、以/符号结尾的及不存在/符号的订阅按非法订阅处理, 这里没有参考标准协议)
 7. websocket支持
 8. 集群功能
 
-#### 快速开始
-- [下载已打包好的可运行的jar文件](https://gitee.com/recallcode/iot-mqtt-server/releases)
+#### 快速开始(SSL连接)
 - 运行jar文件(如果需要修改配置项,可以在同级目录下新建config/application.yml进行修改)
 - 打开mqtt-spy客户端, 填写相应配置[下载](https://github.com/eclipse/paho.mqtt-spy/wiki/Downloads)
-- 连接端口:8885, websocket端口: 9995 websocket path: /mqtt
+- SSL MQTT 连接端口:8885, websocket端口: 9995 websocket path: /mqtt
 - 连接使用的用户名:testOne
 - 连接使用的密码: 6156ADE136B3BF385B595CF3A69BFAFF2D6AFE87FF3EE1B49224F51D0259B00B014BA7771064E9F46CBF67F27780AABCCC1C252142397FEE8316A91CB0C52176
 - 连接使用的证书[mqtt-broker.cer](https://gitee.com/recallcode/iot-mqtt-server/releases)
@@ -58,7 +56,7 @@ iot-mqtt-server
 - 生成环境部署建议使用`keepalived+nginx+mqtt-broker`方式
 - 使用nginx的tcp和websocket反向代理mqtt-broker集群实现负载均衡
 - 使用keepalived实现nginx的高可用    
-![输入图片说明](https://images.gitee.com/uploads/images/2018/0712/112559_e5f8401d_1081719.png "QQ拼音截图20180712112409.png")
+![图片](https://images.gitee.com/uploads/images/2018/0712/112559_e5f8401d_1081719.png "png")
 - `mqtt-broker`模块中包含`Dockerfile`文件可以直接生成镜像
 - 需要注意: 基于集群的实现机制, 在通过`docker run`部署容器时,需要添加--net=host参数
 - `docker run --name=mqtt-broker-service --net=host --restart=always --env-file=/home/rancher/mqtt-broker/env.list -v /home/rancher/mqtt-broker/config/:/opt/mqtt-broker/config/ -v /home/rancher/mqtt-broker/persistence/:/opt/mqtt-broker/persistence/ -d mqtt-broker:1.5`

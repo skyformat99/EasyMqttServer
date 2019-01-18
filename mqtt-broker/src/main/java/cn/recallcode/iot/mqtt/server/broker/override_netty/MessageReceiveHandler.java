@@ -2,7 +2,6 @@ package cn.recallcode.iot.mqtt.server.broker.override_netty;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.TypeParameterMatcher;
 
@@ -14,38 +13,57 @@ import io.netty.util.internal.TypeParameterMatcher;
  *
  * @param <I>I表示一个抽象 ，特指实现了Message的具体消息的类
  */
-public abstract class MessageChannelInBoundHandler<I> extends ChannelInboundHandlerAdapter {
+public abstract class MessageReceiveHandler<I> extends ChannelInboundHandlerAdapter {
+    /**
+     * TypeParameterMatcher 是为了判断泛型的类, 然后根据传入的泛型来确定类型拦截器
+     * 比如泛型的类是Mqtt消息，然后识别出来以后就会使用Mqtt的拦截器Handler
+     */
     private final TypeParameterMatcher matcher;
     private final boolean autoRelease;
 
-    protected MessageChannelInBoundHandler() {
+    protected MessageReceiveHandler() {
         this(true);
     }
 
-    protected MessageChannelInBoundHandler(boolean autoRelease) {
-        this.matcher = TypeParameterMatcher.find(this, SimpleChannelInboundHandler.class, "I");
+    private MessageReceiveHandler(boolean autoRelease) {
+        this.matcher = TypeParameterMatcher.find(this, MessageReceiveHandler.class, "I");
         this.autoRelease = autoRelease;
     }
 
-    protected MessageChannelInBoundHandler(Class<? extends I> inboundMessageType) {
+    protected MessageReceiveHandler(Class<? extends I> inboundMessageType) {
         this(inboundMessageType, true);
     }
 
-    protected MessageChannelInBoundHandler(Class<? extends I> inboundMessageType, boolean autoRelease) {
+    private MessageReceiveHandler(Class<? extends I> inboundMessageType, boolean autoRelease) {
         this.matcher = TypeParameterMatcher.get(inboundMessageType);
         this.autoRelease = autoRelease;
     }
 
+    /**
+     * 这个方法的作用是：判断是否是泛型规定的消息类型
+     *
+     * @param msg
+     * @return
+     * @throws Exception
+     */
     private boolean acceptInboundMessage(Object msg) throws Exception {
         return this.matcher.match(msg);
     }
+
+    /**
+     * 从消息管道中读取消息，然后处理成泛型识别出来的类型(理解起来很蛋疼)
+     *
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
 
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         boolean release = true;
 
         try {
             if (this.acceptInboundMessage(msg)) {
-                this.channelMessageRead(ctx, (I) msg);
+                this.messageReceived(ctx, (I) msg);
             } else {
                 release = false;
                 ctx.fireChannelRead(msg);
@@ -64,8 +82,8 @@ public abstract class MessageChannelInBoundHandler<I> extends ChannelInboundHand
      * 在上一步的 channelRead 中，已经处理了消息转换，所以我们实现这个方法的时候，I 其实就是我们具体的消息了
      *
      * @param channelHandlerContext 具体的处理器的上下文
-     * @param i 具体消息
+     * @param i                     具体消息
      * @throws Exception
      */
-    protected abstract void channelMessageRead(ChannelHandlerContext channelHandlerContext, I i) throws Exception;
+    protected abstract void messageReceived(ChannelHandlerContext channelHandlerContext, I i) throws Exception;
 }
