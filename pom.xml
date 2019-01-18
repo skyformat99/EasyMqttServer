@@ -3,8 +3,8 @@
 	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<!--POM-->
-	<groupId>com.easyiot.easylinker</groupId>
-	<artifactId>EasyLinkerMqttServerForJava</artifactId>
+	<groupId>cn.recallcode</groupId>
+	<artifactId>iot-mqtt-server</artifactId>
 	<version>${iot-mqtt-server.version}</version>
 	<packaging>pom</packaging>
 	<!--模块-->
