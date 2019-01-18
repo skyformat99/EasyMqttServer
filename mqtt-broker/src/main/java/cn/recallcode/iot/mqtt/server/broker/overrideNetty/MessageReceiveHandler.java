@@ -1,4 +1,4 @@
-package cn.recallcode.iot.mqtt.server.broker.override_netty;
+package cn.recallcode.iot.mqtt.server.broker.overrideNetty;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -86,4 +86,15 @@ public abstract class MessageReceiveHandler<I> extends ChannelInboundHandlerAdap
      * @throws Exception
      */
     protected abstract void messageReceived(ChannelHandlerContext channelHandlerContext, I i) throws Exception;
+
+
+    /**
+     * 断线
+     * @param ctx
+     * @throws Exception
+     */
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+    }
 }

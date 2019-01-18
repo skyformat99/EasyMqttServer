@@ -4,8 +4,8 @@
 
 package cn.recallcode.iot.mqtt.server.broker.handler;
 
-import cn.recallcode.iot.mqtt.server.broker.override_netty.MessageReceiveHandler;
-import cn.recallcode.iot.mqtt.server.broker.protocol.ProtocolProcess;
+import cn.recallcode.iot.mqtt.server.broker.overrideNetty.MessageReceiveHandler;
+import cn.recallcode.iot.mqtt.server.broker.core.ProtocolProcess;
 import cn.recallcode.iot.mqtt.server.common.session.SessionStore;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -29,7 +29,7 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, MqttMessage msg) throws Exception {
-        System.out.println("消息：" + msg.fixedHeader());
+        //System.out.println("消息：" + msg.fixedHeader());
 
         switch (msg.fixedHeader().messageType()) {
             /**

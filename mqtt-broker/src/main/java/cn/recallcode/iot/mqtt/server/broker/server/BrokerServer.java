@@ -7,7 +7,7 @@ package cn.recallcode.iot.mqtt.server.broker.server;
 import cn.recallcode.iot.mqtt.server.broker.codec.MqttWebSocketCodec;
 import cn.recallcode.iot.mqtt.server.broker.config.BrokerProperties;
 import cn.recallcode.iot.mqtt.server.broker.handler.BrokerHandler;
-import cn.recallcode.iot.mqtt.server.broker.protocol.ProtocolProcess;
+import cn.recallcode.iot.mqtt.server.broker.core.ProtocolProcess;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
