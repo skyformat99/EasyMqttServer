@@ -4,8 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<!--POM-->
 	<parent>
-		<groupId>cn.recallcode</groupId>
-		<artifactId>iot-mqtt-server</artifactId>
+		<groupId>com.easyiot.easylinker</groupId>
+		<artifactId>EasyLinkerMqttServerForJava</artifactId>
 		<version>${iot-mqtt-server.version}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
