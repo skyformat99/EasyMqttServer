@@ -5,10 +5,12 @@
 package cn.recallcode.iot.mqtt.server.store.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * ignite属性配置
  */
+@Component
 @ConfigurationProperties(prefix = "spring.mqtt.broker.cache")
 public class IgniteProperties {
 

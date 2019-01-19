@@ -90,6 +90,19 @@ public class IgniteAutoConfig {
 		return ignite;
 	}
 
+	/**
+	 * 配置Ignite 的实现类
+	 * @return
+	 * @throws Exception
+	 */
+	@Bean
+	public IgniteCache sessionStoreCache() throws Exception {
+		CacheConfiguration cacheConfiguration = new CacheConfiguration().setDataRegionName("not-persistence-data-region")
+				.setCacheMode(CacheMode.PARTITIONED).setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL).setName("sessionStoreCache");
+		return ignite().getOrCreateCache(cacheConfiguration);
+	}
+
+
 	@Bean
 	public IgniteCache messageIdCache() throws Exception {
 		CacheConfiguration cacheConfiguration = new CacheConfiguration().setDataRegionName("not-persistence-data-region")

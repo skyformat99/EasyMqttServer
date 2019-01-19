@@ -4,11 +4,9 @@
 
 package cn.recallcode.iot.mqtt.server;
 
-import cn.recallcode.iot.mqtt.server.config.BrokerProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 
 /**
  * 通过SpringBoot启动服务
@@ -16,15 +14,10 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication(scanBasePackages = {"cn.recallcode.iot.mqtt.server"})
 public class BrokerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication application = new SpringApplication(BrokerApplication.class);
-		application.setWebApplicationType(WebApplicationType.NONE);
-		application.run(args);
-	}
-
-	@Bean
-	public BrokerProperties brokerProperties() {
-		return new BrokerProperties();
-	}
+    public static void main(String[] args) {
+        SpringApplication application = new SpringApplication(BrokerApplication.class);
+        application.setWebApplicationType(WebApplicationType.NONE);
+        application.run(args);
+    }
 
 }

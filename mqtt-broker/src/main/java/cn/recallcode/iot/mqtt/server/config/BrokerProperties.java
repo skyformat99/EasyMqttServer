@@ -5,10 +5,12 @@
 package cn.recallcode.iot.mqtt.server.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * 服务配置
  */
+@Component
 @ConfigurationProperties(prefix = "spring.mqtt.broker")
 public class BrokerProperties {
 

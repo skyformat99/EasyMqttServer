@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  * 协议处理
  */
 @Component
-public class ProtocolProcess {
+public class ProtocolResolver {
 
     @Autowired
     private ISessionStoreService sessionStoreService;
@@ -150,4 +150,151 @@ public class ProtocolProcess {
         return sessionStoreService;
     }
 
+    public void setSessionStoreService(ISessionStoreService sessionStoreService) {
+        this.sessionStoreService = sessionStoreService;
+    }
+
+    public ISubscribeStoreService getSubscribeStoreService() {
+        return subscribeStoreService;
+    }
+
+    public void setSubscribeStoreService(ISubscribeStoreService subscribeStoreService) {
+        this.subscribeStoreService = subscribeStoreService;
+    }
+
+    public IAuthService getAuthService() {
+        return authService;
+    }
+
+    public void setAuthService(IAuthService authService) {
+        this.authService = authService;
+    }
+
+    public IMessageIdService getMessageIdService() {
+        return messageIdService;
+    }
+
+    public void setMessageIdService(IMessageIdService messageIdService) {
+        this.messageIdService = messageIdService;
+    }
+
+    public IRetainMessageStoreService getMessageStoreService() {
+        return messageStoreService;
+    }
+
+    public void setMessageStoreService(IRetainMessageStoreService messageStoreService) {
+        this.messageStoreService = messageStoreService;
+    }
+
+    public IDupPublishMessageStoreService getDupPublishMessageStoreService() {
+        return dupPublishMessageStoreService;
+    }
+
+    public void setDupPublishMessageStoreService(IDupPublishMessageStoreService dupPublishMessageStoreService) {
+        this.dupPublishMessageStoreService = dupPublishMessageStoreService;
+    }
+
+    public IDupPubRelMessageStoreService getDupPubRelMessageStoreService() {
+        return dupPubRelMessageStoreService;
+    }
+
+    public void setDupPubRelMessageStoreService(IDupPubRelMessageStoreService dupPubRelMessageStoreService) {
+        this.dupPubRelMessageStoreService = dupPubRelMessageStoreService;
+    }
+
+    public InternalCommunication getInternalCommunication() {
+        return internalCommunication;
+    }
+
+    public void setInternalCommunication(InternalCommunication internalCommunication) {
+        this.internalCommunication = internalCommunication;
+    }
+
+    public Connect getConnect() {
+        return connect;
+    }
+
+    public void setConnect(Connect connect) {
+        this.connect = connect;
+    }
+
+    public ConnAck getConnAck() {
+        return connAck;
+    }
+
+    public void setConnAck(ConnAck connAck) {
+        this.connAck = connAck;
+    }
+
+    public Subscribe getSubscribe() {
+        return subscribe;
+    }
+
+    public void setSubscribe(Subscribe subscribe) {
+        this.subscribe = subscribe;
+    }
+
+    public UnSubscribe getUnSubscribe() {
+        return unSubscribe;
+    }
+
+    public void setUnSubscribe(UnSubscribe unSubscribe) {
+        this.unSubscribe = unSubscribe;
+    }
+
+    public Publish getPublish() {
+        return publish;
+    }
+
+    public void setPublish(Publish publish) {
+        this.publish = publish;
+    }
+
+    public DisConnect getDisConnect() {
+        return disConnect;
+    }
+
+    public void setDisConnect(DisConnect disConnect) {
+        this.disConnect = disConnect;
+    }
+
+    public PingReq getPingReq() {
+        return pingReq;
+    }
+
+    public void setPingReq(PingReq pingReq) {
+        this.pingReq = pingReq;
+    }
+
+    public PubRel getPubRel() {
+        return pubRel;
+    }
+
+    public void setPubRel(PubRel pubRel) {
+        this.pubRel = pubRel;
+    }
+
+    public PubAck getPubAck() {
+        return pubAck;
+    }
+
+    public void setPubAck(PubAck pubAck) {
+        this.pubAck = pubAck;
+    }
+
+    public PubRec getPubRec() {
+        return pubRec;
+    }
+
+    public void setPubRec(PubRec pubRec) {
+        this.pubRec = pubRec;
+    }
+
+    public PubComp getPubComp() {
+        return pubComp;
+    }
+
+    public void setPubComp(PubComp pubComp) {
+        this.pubComp = pubComp;
+    }
 }

@@ -98,7 +98,7 @@ public class Connect {
 //			return;
 //		}
         /**
-         * 吧之前的给踢下去
+         * 把之前的给踢下去
          */
         // 如果会话中已存储这个新连接的clientId, 就关闭之前该clientId的连接
         if (sessionStoreService.containsKey(msg.payload().clientIdentifier())) {
@@ -113,7 +113,10 @@ public class Connect {
             }
             previous.close();
         }
-        // 处理遗嘱信息
+
+        /**
+         *  处理遗嘱信息
+         */
         SessionStore sessionStore = new SessionStore(msg.payload().clientIdentifier(), channel, msg.variableHeader().isCleanSession(), null);
         if (msg.variableHeader().isWillFlag()) {
             MqttPublishMessage willMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
@@ -121,16 +124,23 @@ public class Connect {
                     new MqttPublishVariableHeader(msg.payload().willTopic(), 0), Unpooled.buffer().writeBytes(msg.payload().willMessageInBytes()));
             sessionStore.setWillMessage(willMessage);
         }
-        // 处理连接心跳包
+
+        /**
+         * 处理连接心跳包
+         */
         if (msg.variableHeader().keepAliveTimeSeconds() > 0) {
             if (channel.pipeline().names().contains("idle")) {
                 channel.pipeline().remove("idle");
             }
             channel.pipeline().addFirst("idle", new IdleStateHandler(0, 0, Math.round(msg.variableHeader().keepAliveTimeSeconds() * 1.5f)));
         }
-        // 至此存储会话信息及返回接受客户端连接
+        /**
+         * 至此存储会话信息及返回接受客户端连接
+         */
         sessionStoreService.put(msg.payload().clientIdentifier(), sessionStore);
-        // 将clientId存储到channel的map中
+        /**
+         * 将clientId存储到channel的map中
+         */
         channel.attr(AttributeKey.valueOf("clientId")).set(msg.payload().clientIdentifier());
         Boolean sessionPresent = sessionStoreService.containsKey(msg.payload().clientIdentifier()) && !msg.variableHeader().isCleanSession();
         MqttConnAckMessage okResp = (MqttConnAckMessage) MqttMessageFactory.newMessage(
@@ -138,7 +148,14 @@ public class Connect {
                 new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_ACCEPTED, sessionPresent), null);
         channel.writeAndFlush(okResp);
         LOGGER.debug("CONNECT - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
-        // 如果cleanSession为0, 需要重发同一clientId存储的未完成的QoS1和QoS2的DUP消息
+        /**
+         * 把channelID保存进去，以便于后面扩展设备上下线问题
+         *
+         */
+        //sessionStoreService.putChannelId(channel.id().asLongText(), sessionStore);
+        /**
+         * 如果cleanSession为0, 需要重发同一clientId存储的未完成的QoS1和QoS2的DUP消息
+         */
         if (!msg.variableHeader().isCleanSession()) {
             List<DupPublishMessageStore> dupPublishMessageStoreList = dupPublishMessageStoreService.get(msg.payload().clientIdentifier());
             List<DupPubRelMessageStore> dupPubRelMessageStoreList = dupPubRelMessageStoreService.get(msg.payload().clientIdentifier());

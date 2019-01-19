@@ -38,9 +38,9 @@ public class DupPublishMessageStoreService implements IDupPublishMessageStoreSer
 		if (dupPublishMessageCache.containsKey(clientId)) {
 			ConcurrentHashMap<Integer, DupPublishMessageStore> map = dupPublishMessageCache.get(clientId);
 			Collection<DupPublishMessageStore> collection = map.values();
-			return new ArrayList<DupPublishMessageStore>(collection);
+			return new ArrayList<>(collection);
 		}
-		return new ArrayList<DupPublishMessageStore>();
+		return new ArrayList<>();
 	}
 
 	@Override

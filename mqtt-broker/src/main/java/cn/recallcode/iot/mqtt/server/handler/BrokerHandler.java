@@ -4,27 +4,33 @@
 
 package cn.recallcode.iot.mqtt.server.handler;
 
-import cn.recallcode.iot.mqtt.server.core.ProtocolProcess;
-import cn.recallcode.iot.mqtt.server.overrideNetty.MessageReceiveHandler;
 import cn.recallcode.iot.mqtt.server.common.session.SessionStore;
+import cn.recallcode.iot.mqtt.server.core.ProtocolResolver;
+import cn.recallcode.iot.mqtt.server.override_netty.MessageReceiveHandler;
+import cn.recallcode.iot.mqtt.server.store.session.SessionStoreService;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 /**
  * MQTT消息处理
  */
+@Component
 public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
 
-    private ProtocolProcess protocolProcess;
+    private ProtocolResolver protocolProcess;
+    private SessionStoreService sessionStoreService;
 
-    public BrokerHandler(ProtocolProcess protocolProcess) {
+    public BrokerHandler(ProtocolResolver protocolProcess, SessionStoreService sessionStoreService) {
         this.protocolProcess = protocolProcess;
+        this.sessionStoreService = sessionStoreService;
+
     }
 
     @Override
@@ -122,6 +128,8 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
             case DISCONNECT:
                 protocolProcess.disConnect().processDisConnect(ctx.channel(), msg);
                 break;
+
+
             default:
                 break;
         }
@@ -158,7 +166,11 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        System.out.println("userEventTriggered:" + evt.getClass());
+        String channelId = ctx.channel().id().asLongText();
+        if (sessionStoreService.containsChannelId(channelId)) {
+            System.out.println(sessionStoreService.getByChannelId(channelId));
+        }
+
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
             if (idleStateEvent.state() == IdleState.ALL_IDLE) {

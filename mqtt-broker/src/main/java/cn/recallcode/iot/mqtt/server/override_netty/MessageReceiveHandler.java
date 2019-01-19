@@ -1,4 +1,4 @@
-package cn.recallcode.iot.mqtt.server.overrideNetty;
+package cn.recallcode.iot.mqtt.server.override_netty;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

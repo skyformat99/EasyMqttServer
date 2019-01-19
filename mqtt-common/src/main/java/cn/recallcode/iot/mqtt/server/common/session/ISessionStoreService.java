@@ -9,24 +9,49 @@ package cn.recallcode.iot.mqtt.server.common.session;
  */
 public interface ISessionStoreService {
 
-	/**
-	 * 存储会话
-	 */
-	void put(String clientId, SessionStore sessionStore);
+    /**
+     * 存储会话
+     */
+    void put(String clientId, SessionStore sessionStore);
 
-	/**
-	 * 获取会话
-	 */
-	SessionStore get(String clientId);
+    /**
+     * 获取会话
+     */
+    SessionStore get(String clientId);
 
-	/**
-	 * clientId的会话是否存在
-	 */
-	boolean containsKey(String clientId);
+    /**
+     * clientId的会话是否存在
+     */
+    boolean containsKey(String clientId);
 
-	/**
-	 * 删除会话
-	 */
-	void remove(String clientId);
+    /**
+     * 删除会话
+     */
+    void remove(String clientId);
+
+    /**
+     * 保存channelID
+     *
+     * @param channelId
+     * @param sessionStore
+     */
+    void putChannelId(String channelId, SessionStore sessionStore);
+
+    /**
+     * 根据ChannelId 获取连接进来的客户端
+     */
+
+    SessionStore getByChannelId(String channelId);
+
+    /**
+     * @param channelId
+     * @return
+     */
+    boolean containsChannelId(String channelId);
+
+    /**
+     * 删除ChannelId
+     */
+    void removeChannelId(String channelId);
 
 }

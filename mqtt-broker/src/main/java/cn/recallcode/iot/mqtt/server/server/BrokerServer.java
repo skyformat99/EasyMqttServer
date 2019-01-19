@@ -5,9 +5,10 @@
 package cn.recallcode.iot.mqtt.server.server;
 
 import cn.recallcode.iot.mqtt.server.codec.MqttWebSocketCodec;
-import cn.recallcode.iot.mqtt.server.core.ProtocolProcess;
 import cn.recallcode.iot.mqtt.server.config.BrokerProperties;
+import cn.recallcode.iot.mqtt.server.core.ProtocolResolver;
 import cn.recallcode.iot.mqtt.server.handler.BrokerHandler;
+import cn.recallcode.iot.mqtt.server.store.session.SessionStoreService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -50,7 +51,10 @@ public class BrokerServer {
     private BrokerProperties brokerProperties;
 
     @Autowired
-    private ProtocolProcess protocolProcess;
+    private ProtocolResolver protocolProcess;
+
+    @Autowired
+    SessionStoreService sessionStoreService;
 
     private EventLoopGroup bossGroup;
 
@@ -110,17 +114,18 @@ public class BrokerServer {
                          */
                         channelPipeline.addFirst("idle", new IdleStateHandler(0, 0, brokerProperties.getKeepAlive()));
                         // Netty提供的SSL处理
-                        SSLEngine sslEngine = sslContext.newEngine(socketChannel.alloc());
-                        sslEngine.setUseClientMode(false);        // 服务端模式
-                        sslEngine.setNeedClientAuth(false);        // 不需要验证客户端
                         /**
                          * SSL开关
                          */
+                        SSLEngine sslEngine = sslContext.newEngine(socketChannel.alloc());
+                        sslEngine.setUseClientMode(false);        // 服务端模式
+                        sslEngine.setNeedClientAuth(false);        // 不需要验证客户端
+
                         //channelPipeline.addLast("ssl", new SslHandler(sslEngine));
 
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
-                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess));
+                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess,sessionStoreService));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
@@ -155,7 +160,7 @@ public class BrokerServer {
                         channelPipeline.addLast("mqttWebSocket", new MqttWebSocketCodec());
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
-                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess));
+                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess,sessionStoreService));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
