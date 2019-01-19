@@ -152,7 +152,7 @@ public class Connect {
          * 把channelID保存进去，以便于后面扩展设备上下线问题
          *
          */
-        //sessionStoreService.putChannelId(channel.id().asLongText(), sessionStore);
+        sessionStoreService.putChannelId(channel.id().asLongText(), sessionStore);
         /**
          * 如果cleanSession为0, 需要重发同一clientId存储的未完成的QoS1和QoS2的DUP消息
          */

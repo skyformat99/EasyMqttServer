@@ -167,6 +167,7 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         String channelId = ctx.channel().id().asLongText();
+
         if (sessionStoreService.containsChannelId(channelId)) {
             System.out.println(sessionStoreService.getByChannelId(channelId));
         }

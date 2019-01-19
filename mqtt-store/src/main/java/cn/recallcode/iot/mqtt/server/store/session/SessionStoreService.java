@@ -7,9 +7,9 @@ package cn.recallcode.iot.mqtt.server.store.session;
 import cn.recallcode.iot.mqtt.server.common.session.ISessionStoreService;
 import cn.recallcode.iot.mqtt.server.common.session.SessionStore;
 import org.apache.ignite.IgniteCache;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,10 +18,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public class SessionStoreService implements ISessionStoreService {
-    @Resource
-    private IgniteCache<String, SessionStore> sessionStoreCache;
 
-    //private Map<String, SessionStore> sessionStoreCache = new ConcurrentHashMap<>();
+    //@Autowired
+    //private IgniteCache<String,SessionStore> sessionStoreCache;
+
+    private Map<String, SessionStore> sessionStoreCache = new ConcurrentHashMap<>();
 
     @Override
     public void put(String clientId, SessionStore sessionStore) {
