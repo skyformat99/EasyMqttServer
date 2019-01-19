@@ -158,6 +158,7 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        System.out.println("userEventTriggered:" + evt.getClass());
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
             if (idleStateEvent.state() == IdleState.ALL_IDLE) {
