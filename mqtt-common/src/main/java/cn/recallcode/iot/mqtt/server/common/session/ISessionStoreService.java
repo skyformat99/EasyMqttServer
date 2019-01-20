@@ -4,6 +4,9 @@
 
 package cn.recallcode.iot.mqtt.server.common.session;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 会话存储服务接口
  */
@@ -53,5 +56,17 @@ public interface ISessionStoreService {
      * 删除ChannelId
      */
     void removeChannelId(String channelId);
+
+    /**
+     * 获取所有的数目
+     */
+    int getChannelCount();
+
+    /**
+     * 获取所有
+     */
+    Map<String, SessionStore> getAll();
+
+
 
 }

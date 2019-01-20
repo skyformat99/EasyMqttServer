@@ -30,4 +30,14 @@ public interface ISubscribeStoreService {
 	 * 获取订阅存储集
 	 */
 	List<SubscribeStore> search(String topic);
+
+	/**
+	 * 获取所有的Topic数目
+	 * subscribeNotWildcardCache;
+	 * subscribeWildcardCache;
+	 */
+	int getNotWildcardCacheTopicCount();
+
+	int getWildcardCacheTopicCount();
+
 }

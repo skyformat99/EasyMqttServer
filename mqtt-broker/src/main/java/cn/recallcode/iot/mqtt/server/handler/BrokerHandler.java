@@ -169,8 +169,13 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
         String channelId = ctx.channel().id().asLongText();
 
         if (sessionStoreService.containsChannelId(channelId)) {
-            System.out.println(sessionStoreService.getByChannelId(channelId));
+            System.out.println("设备异常掉线:" + sessionStoreService.getByChannelId(channelId));
+            //删除Session
+            sessionStoreService.remove(sessionStoreService.getByChannelId(channelId).getClientId());
+            //删除在线统计
+            sessionStoreService.removeChannelId(channelId);
         }
+
 
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;

@@ -39,6 +39,10 @@ public class Subscribe {
         this.retainMessageStoreService = retainMessageStoreService;
     }
 
+    /**
+     * @param channel
+     * @param msg
+     */
     public void processSubscribe(Channel channel, MqttSubscribeMessage msg) {
         List<MqttTopicSubscription> topicSubscriptions = msg.payload().topicSubscriptions();
         if (this.validTopicFilter(topicSubscriptions)) {
@@ -69,6 +73,7 @@ public class Subscribe {
                 this.sendRetainMessage(channel, topicFilter, mqttQoS);
             });
         } else {
+            //主题不符合要求，不让订阅
             channel.close();
         }
     }

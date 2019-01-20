@@ -4,6 +4,7 @@
 
 package cn.recallcode.iot.mqtt.server.common.session;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 
@@ -69,6 +70,12 @@ public class SessionStore implements Serializable {
 
     @Override
     public String toString() {
-        return "{clientId=" + clientId + ",channelId=" + channel.id().asLongText() + "}";
+
+        return "SessionStore{" +
+                "clientId='" + clientId + '\'' +
+                ", channel=" + channel.id().asLongText() +
+                ", cleanSession=" + cleanSession +
+                ", willMessage=" + willMessage +
+                '}';
     }
 }

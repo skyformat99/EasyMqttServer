@@ -21,34 +21,46 @@ import org.slf4j.LoggerFactory;
  */
 public class DisConnect {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DisConnect.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DisConnect.class);
 
-	private ISessionStoreService sessionStoreService;
+    private ISessionStoreService sessionStoreService;
 
-	private ISubscribeStoreService subscribeStoreService;
+    private ISubscribeStoreService subscribeStoreService;
 
-	private IDupPublishMessageStoreService dupPublishMessageStoreService;
+    private IDupPublishMessageStoreService dupPublishMessageStoreService;
 
-	private IDupPubRelMessageStoreService dupPubRelMessageStoreService;
+    private IDupPubRelMessageStoreService dupPubRelMessageStoreService;
 
-	public DisConnect(ISessionStoreService sessionStoreService, ISubscribeStoreService subscribeStoreService, IDupPublishMessageStoreService dupPublishMessageStoreService, IDupPubRelMessageStoreService dupPubRelMessageStoreService) {
-		this.sessionStoreService = sessionStoreService;
-		this.subscribeStoreService = subscribeStoreService;
-		this.dupPublishMessageStoreService = dupPublishMessageStoreService;
-		this.dupPubRelMessageStoreService = dupPubRelMessageStoreService;
-	}
+    public DisConnect(ISessionStoreService sessionStoreService, ISubscribeStoreService subscribeStoreService, IDupPublishMessageStoreService dupPublishMessageStoreService, IDupPubRelMessageStoreService dupPubRelMessageStoreService) {
+        this.sessionStoreService = sessionStoreService;
+        this.subscribeStoreService = subscribeStoreService;
+        this.dupPublishMessageStoreService = dupPublishMessageStoreService;
+        this.dupPubRelMessageStoreService = dupPubRelMessageStoreService;
+    }
 
-	public void processDisConnect(Channel channel, MqttMessage msg) {
-		String clientId = (String) channel.attr(AttributeKey.valueOf("clientId")).get();
-		SessionStore sessionStore = sessionStoreService.get(clientId);
-		if (sessionStore.isCleanSession()) {
-			subscribeStoreService.removeForClient(clientId);
-			dupPublishMessageStoreService.removeByClient(clientId);
-			dupPubRelMessageStoreService.removeByClient(clientId);
-		}
-		LOGGER.debug("DISCONNECT - clientId: {}, cleanSession: {}", clientId, sessionStore.isCleanSession());
-		sessionStoreService.remove(clientId);
-		channel.close();
-	}
+    public void processDisConnect(Channel channel, MqttMessage msg) {
+        String clientId = (String) channel.attr(AttributeKey.valueOf("clientId")).get();
+        SessionStore sessionStore = sessionStoreService.get(clientId);
+        /**
+         * 删除在线设备
+         */
+        String channelId = channel.id().asLongText();
+        if (sessionStoreService.containsChannelId(channelId)) {
+            System.out.println("设备异常掉线:" + sessionStoreService.getByChannelId(channelId));
+            sessionStoreService.removeChannelId(channelId);
+        }
+
+        /**
+         * 删除会话
+         */
+        if (sessionStore.isCleanSession()) {
+            subscribeStoreService.removeForClient(clientId);
+            dupPublishMessageStoreService.removeByClient(clientId);
+            dupPubRelMessageStoreService.removeByClient(clientId);
+        }
+        LOGGER.debug("DISCONNECT - clientId: {}, cleanSession: {}", clientId, sessionStore.isCleanSession());
+        sessionStoreService.remove(clientId);
+        channel.close();
+    }
 
 }

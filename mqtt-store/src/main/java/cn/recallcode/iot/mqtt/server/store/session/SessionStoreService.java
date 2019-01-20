@@ -6,8 +6,6 @@ package cn.recallcode.iot.mqtt.server.store.session;
 
 import cn.recallcode.iot.mqtt.server.common.session.ISessionStoreService;
 import cn.recallcode.iot.mqtt.server.common.session.SessionStore;
-import org.apache.ignite.IgniteCache;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -19,10 +17,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class SessionStoreService implements ISessionStoreService {
 
-    //@Autowired
-    //private IgniteCache<String,SessionStore> sessionStoreCache;
+//    @Autowired
+//    private IgniteCache<String,SessionStore> sessionStoreCache;
+//
 
+    /**
+     * 保存会话
+     */
     private Map<String, SessionStore> sessionStoreCache = new ConcurrentHashMap<>();
+    /**
+     * 保存在线的Channel
+     */
+    private Map<String, SessionStore> channelIdStoreCache = new ConcurrentHashMap<>();
 
     @Override
     public void put(String clientId, SessionStore sessionStore) {
@@ -51,22 +57,33 @@ public class SessionStoreService implements ISessionStoreService {
      * @param sessionStore
      */
     public void putChannelId(String channelId, SessionStore sessionStore) {
-        sessionStoreCache.put(channelId, sessionStore);
+        channelIdStoreCache.put(channelId, sessionStore);
     }
 
     @Override
     public SessionStore getByChannelId(String channelId) {
-        return sessionStoreCache.get(channelId);
+        return channelIdStoreCache.get(channelId);
     }
 
     @Override
     public boolean containsChannelId(String channelId) {
-        return sessionStoreCache.containsKey(channelId);
+        return channelIdStoreCache.containsKey(channelId);
     }
 
     @Override
     public void removeChannelId(String channelId) {
-        sessionStoreCache.remove(channelId);
+        channelIdStoreCache.remove(channelId);
+
+    }
+
+    @Override
+    public int getChannelCount() {
+        return channelIdStoreCache.size();
+    }
+
+    @Override
+    public Map<String, SessionStore> getAll() {
+        return channelIdStoreCache;
 
     }
 
