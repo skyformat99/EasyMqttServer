@@ -33,7 +33,7 @@ spring:
         not-persistence-initial-size: 64
         # 非持久化缓存占用内存最大值(MB)
         not-persistence-max-size: 128
-        persistence-store-path: /mqtt-broker/persistence
+        # persistence-store-path: /mqtt-broker/persistence
 
   thymeleaf:
     cache: false
@@ -56,21 +56,25 @@ webadmin:
   password:
     password
 
-#management:
-#        endpoints:
-#
-#                web:
-#                        exposure:
-#                                #加载所有的端点，默认只加载了info、health
-#                                include: '*'
-#        endpoint:
-#                health:
-#                        show-details: always
-#                #可以关闭指定的端点
-#                shutdown:
-#                        enabled: false
-#                sessions:
-#                        enabled:
+#----------------------------
+info:
+  head: head
+  body: body
+management:
+        endpoints:
+
+                web:
+                        exposure:
+                                #加载所有的端点，默认只加载了info、health
+                                include: '*'
+        endpoint:
+                health:
+                        show-details: always
+                #可以关闭指定的端点
+                shutdown:
+                        enabled: false
+                sessions:
+                        enabled:
 
 ## 生产环境
 #spring:

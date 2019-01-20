@@ -4,10 +4,11 @@
 
 package cn.recallcode.iot.mqtt.server.handler;
 
+import cn.recallcode.iot.mqtt.server.common.client.IChannelStoreStoreService;
+import cn.recallcode.iot.mqtt.server.common.session.ISessionStoreService;
 import cn.recallcode.iot.mqtt.server.common.session.SessionStore;
 import cn.recallcode.iot.mqtt.server.core.ProtocolResolver;
 import cn.recallcode.iot.mqtt.server.override_netty.MessageReceiveHandler;
-import cn.recallcode.iot.mqtt.server.store.session.SessionStoreService;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
@@ -25,11 +26,14 @@ import java.io.IOException;
 public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
 
     private ProtocolResolver protocolProcess;
-    private SessionStoreService sessionStoreService;
 
-    public BrokerHandler(ProtocolResolver protocolProcess, SessionStoreService sessionStoreService) {
+    private IChannelStoreStoreService iChannelStoreStoreService;
+    private ISessionStoreService iSessionStoreService;
+
+    public BrokerHandler(ProtocolResolver protocolProcess, IChannelStoreStoreService iChannelStoreStoreService, ISessionStoreService iSessionStoreService) {
         this.protocolProcess = protocolProcess;
-        this.sessionStoreService = sessionStoreService;
+        this.iChannelStoreStoreService = iChannelStoreStoreService;
+        this.iSessionStoreService = iSessionStoreService;
 
     }
 
@@ -168,12 +172,12 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         String channelId = ctx.channel().id().asLongText();
 
-        if (sessionStoreService.containsChannelId(channelId)) {
-            System.out.println("设备异常掉线:" + sessionStoreService.getByChannelId(channelId));
+        if (iChannelStoreStoreService.containsChannelId(channelId)) {
+            System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
             //删除Session
-            sessionStoreService.remove(sessionStoreService.getByChannelId(channelId).getClientId());
+            iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
             //删除在线统计
-            sessionStoreService.removeChannelId(channelId);
+            iChannelStoreStoreService.removeChannelId(channelId);
         }
 
 

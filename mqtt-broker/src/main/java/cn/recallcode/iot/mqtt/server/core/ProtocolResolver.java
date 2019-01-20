@@ -4,14 +4,15 @@
 
 package cn.recallcode.iot.mqtt.server.core;
 
-import cn.recallcode.iot.mqtt.server.internal.InternalCommunication;
 import cn.recallcode.iot.mqtt.server.common.auth.IAuthService;
+import cn.recallcode.iot.mqtt.server.common.client.IChannelStoreStoreService;
 import cn.recallcode.iot.mqtt.server.common.message.IDupPubRelMessageStoreService;
 import cn.recallcode.iot.mqtt.server.common.message.IDupPublishMessageStoreService;
 import cn.recallcode.iot.mqtt.server.common.message.IMessageIdService;
 import cn.recallcode.iot.mqtt.server.common.message.IRetainMessageStoreService;
 import cn.recallcode.iot.mqtt.server.common.session.ISessionStoreService;
 import cn.recallcode.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
+import cn.recallcode.iot.mqtt.server.internal.InternalCommunication;
 import cn.recallcode.iot.mqtt.server.protocol.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -45,6 +46,11 @@ public class ProtocolResolver {
 
     @Autowired
     private InternalCommunication internalCommunication;
+    @Autowired
+    IChannelStoreStoreService iChannelStoreStoreService;
+    @Autowired
+    private ISessionStoreService iSessionStoreService;
+
 
     private Connect connect;
 
@@ -70,7 +76,7 @@ public class ProtocolResolver {
 
     public Connect connect() {
         if (connect == null) {
-            connect = new Connect(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
+            connect = new Connect(iChannelStoreStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
         }
         return connect;
     }
@@ -106,7 +112,12 @@ public class ProtocolResolver {
 
     public DisConnect disConnect() {
         if (disConnect == null) {
-            disConnect = new DisConnect(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService);
+            disConnect = new DisConnect(sessionStoreService,
+                    subscribeStoreService,
+                    dupPublishMessageStoreService,
+                    dupPubRelMessageStoreService,
+                    iChannelStoreStoreService,
+                    iSessionStoreService);
         }
         return disConnect;
     }

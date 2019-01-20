@@ -4,6 +4,7 @@
 
 package cn.recallcode.iot.mqtt.server.protocol;
 
+import cn.recallcode.iot.mqtt.server.common.client.IChannelStoreStoreService;
 import cn.recallcode.iot.mqtt.server.common.message.IDupPubRelMessageStoreService;
 import cn.recallcode.iot.mqtt.server.common.message.IDupPublishMessageStoreService;
 import cn.recallcode.iot.mqtt.server.common.session.ISessionStoreService;
@@ -31,12 +32,26 @@ public class DisConnect {
 
     private IDupPubRelMessageStoreService dupPubRelMessageStoreService;
 
-    public DisConnect(ISessionStoreService sessionStoreService, ISubscribeStoreService subscribeStoreService, IDupPublishMessageStoreService dupPublishMessageStoreService, IDupPubRelMessageStoreService dupPubRelMessageStoreService) {
+    private IChannelStoreStoreService iChannelStoreStoreService;
+
+    private ISessionStoreService iSessionStoreService;
+
+
+    public DisConnect(ISessionStoreService sessionStoreService,
+                      ISubscribeStoreService subscribeStoreService,
+                      IDupPublishMessageStoreService dupPublishMessageStoreService,
+                      IDupPubRelMessageStoreService dupPubRelMessageStoreService,
+                      IChannelStoreStoreService iChannelStoreStoreService,
+                      ISessionStoreService iSessionStoreService) {
         this.sessionStoreService = sessionStoreService;
         this.subscribeStoreService = subscribeStoreService;
         this.dupPublishMessageStoreService = dupPublishMessageStoreService;
         this.dupPubRelMessageStoreService = dupPubRelMessageStoreService;
+        this.iChannelStoreStoreService = iChannelStoreStoreService;
+        this.iSessionStoreService = iSessionStoreService;
+
     }
+
 
     public void processDisConnect(Channel channel, MqttMessage msg) {
         String clientId = (String) channel.attr(AttributeKey.valueOf("clientId")).get();
@@ -45,10 +60,14 @@ public class DisConnect {
          * 删除在线设备
          */
         String channelId = channel.id().asLongText();
-        if (sessionStoreService.containsChannelId(channelId)) {
-            System.out.println("设备异常掉线:" + sessionStoreService.getByChannelId(channelId));
-            sessionStoreService.removeChannelId(channelId);
+        if (iChannelStoreStoreService.containsChannelId(channelId)) {
+            System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
+            //删除Session
+            iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
+            //删除在线统计
+            iChannelStoreStoreService.removeChannelId(channelId);
         }
+
 
         /**
          * 删除会话
