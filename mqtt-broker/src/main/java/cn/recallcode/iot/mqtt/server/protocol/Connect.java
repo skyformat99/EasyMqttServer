@@ -119,18 +119,19 @@ public class Connect {
                 dupPubRelMessageStoreService.removeByClient(msg.payload().clientIdentifier());
             }
             previous.close();
-        }
-        /**
-         * 踢下去以后还要把 上线的缓存给清了
-         */
+            /**
+             * 踢下去以后还要把 上线的缓存给清了
+             */
 
-        String channelId = channel.id().asLongText();
-        if (iChannelStoreStoreService.containsChannelId(channelId)) {
-            System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
-            //删除Session
-            iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
-            //删除在线统计
-            iChannelStoreStoreService.removeChannelId(channelId);
+            String channelId = channel.id().asLongText();
+            if (iChannelStoreStoreService.containsChannelId(channelId)) {
+                System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
+                //删除Session
+                iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
+                //删除在线统计
+                iChannelStoreStoreService.removeChannelId(channelId);
+            }
+
         }
 
 
