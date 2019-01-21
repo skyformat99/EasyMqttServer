@@ -6,7 +6,7 @@ package cn.recallcode.iot.mqtt.server.store.config;
 
 import cn.hutool.core.util.StrUtil;
 import cn.recallcode.iot.mqtt.server.common.client.ChannelStore;
-import com.alibaba.fastjson.JSONObject;
+import cn.recallcode.iot.mqtt.server.common.subscribe.SubscribeStore;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteMessaging;
@@ -99,6 +99,16 @@ public class IgniteAutoConfig {
      * @throws Exception
      */
 
+    //topicCache
+
+    @Bean
+    public IgniteCache topicCache() throws Exception {
+        CacheConfiguration cacheConfiguration = new CacheConfiguration()
+                .setDataRegionName("persistence-data-region")
+                .setCacheMode(CacheMode.PARTITIONED)
+                .setName("topicCache");
+        return ignite().getOrCreateCache(cacheConfiguration);
+    }
 
     @Bean
     public IgniteCache channelStoreCache() throws Exception {
@@ -134,8 +144,10 @@ public class IgniteAutoConfig {
 
     @Bean
     public IgniteCache retainMessageCache() throws Exception {
-        CacheConfiguration cacheConfiguration = new CacheConfiguration().setDataRegionName("persistence-data-region")
-                .setCacheMode(CacheMode.PARTITIONED).setName("retainMessageCache");
+        CacheConfiguration cacheConfiguration = new CacheConfiguration()
+                .setDataRegionName("persistence-data-region")
+                .setCacheMode(CacheMode.PARTITIONED)
+                .setName("retainMessageCache");
         return ignite().getOrCreateCache(cacheConfiguration);
     }
 

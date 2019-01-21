@@ -5,6 +5,8 @@
 package cn.recallcode.iot.mqtt.server.protocol;
 
 import cn.hutool.core.util.StrUtil;
+import cn.recallcode.iot.mqtt.server.common.client.ITopicStoreService;
+import cn.recallcode.iot.mqtt.server.common.client.TopicStore;
 import cn.recallcode.iot.mqtt.server.common.message.IMessageIdService;
 import cn.recallcode.iot.mqtt.server.common.message.IRetainMessageStoreService;
 import cn.recallcode.iot.mqtt.server.common.message.RetainMessageStore;
@@ -33,10 +35,16 @@ public class Subscribe {
 
     private IRetainMessageStoreService retainMessageStoreService;
 
-    public Subscribe(ISubscribeStoreService subscribeStoreService, IMessageIdService messageIdService, IRetainMessageStoreService retainMessageStoreService) {
+    private ITopicStoreService iTopicStoreService;
+
+    public Subscribe(ISubscribeStoreService subscribeStoreService,
+                     IMessageIdService messageIdService,
+                     IRetainMessageStoreService retainMessageStoreService,
+                     ITopicStoreService iTopicStoreService) {
         this.subscribeStoreService = subscribeStoreService;
         this.messageIdService = messageIdService;
         this.retainMessageStoreService = retainMessageStoreService;
+        this.iTopicStoreService = iTopicStoreService;
     }
 
     /**
@@ -54,9 +62,15 @@ public class Subscribe {
                 SubscribeStore subscribeStore = new SubscribeStore(clientId, topicFilter, mqttQoS.value());
                 subscribeStoreService.put(topicFilter, subscribeStore);
                 mqttQoSList.add(mqttQoS.value());
+                /**
+                 * 缓存TOPIC
+                 */
+                iTopicStoreService.put(channel.id().asLongText(), new TopicStore(clientId, topicFilter, mqttQoS.value()));
                 LOGGER.debug("SUBSCRIBE - clientId: {}, topFilter: {}, QoS: {}", clientId, topicFilter, mqttQoS.value());
             });
             /**
+
+             /**
              * SUBACK报文
              */
             MqttSubAckMessage subAckMessage = (MqttSubAckMessage) MqttMessageFactory.newMessage(

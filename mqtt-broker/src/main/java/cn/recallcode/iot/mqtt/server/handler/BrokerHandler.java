@@ -7,6 +7,7 @@ package cn.recallcode.iot.mqtt.server.handler;
 import cn.recallcode.iot.mqtt.server.common.client.IChannelStoreStoreService;
 import cn.recallcode.iot.mqtt.server.common.session.ISessionStoreService;
 import cn.recallcode.iot.mqtt.server.common.session.SessionStore;
+import cn.recallcode.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
 import cn.recallcode.iot.mqtt.server.core.ProtocolResolver;
 import cn.recallcode.iot.mqtt.server.override_netty.MessageReceiveHandler;
 import io.netty.channel.Channel;
@@ -15,6 +16,7 @@ import io.netty.handler.codec.mqtt.*;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -29,12 +31,14 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
 
     private IChannelStoreStoreService iChannelStoreStoreService;
     private ISessionStoreService iSessionStoreService;
+    private ISubscribeStoreService iSubscribeStoreService;
 
-    public BrokerHandler(ProtocolResolver protocolProcess, IChannelStoreStoreService iChannelStoreStoreService, ISessionStoreService iSessionStoreService) {
+    @Autowired
+    public BrokerHandler(ProtocolResolver protocolProcess, IChannelStoreStoreService iChannelStoreStoreService, ISessionStoreService iSessionStoreService, ISubscribeStoreService iSubscribeStoreService) {
         this.protocolProcess = protocolProcess;
         this.iChannelStoreStoreService = iChannelStoreStoreService;
         this.iSessionStoreService = iSessionStoreService;
-
+        this.iSubscribeStoreService = iSubscribeStoreService;
     }
 
     @Override
@@ -170,15 +174,6 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        String channelId = ctx.channel().id().asLongText();
-
-        if (iChannelStoreStoreService.containsChannelId(channelId)) {
-            System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
-            //删除Session
-            iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
-            //删除在线统计
-            iChannelStoreStoreService.removeChannelId(channelId);
-        }
 
 
         if (evt instanceof IdleStateEvent) {
@@ -200,5 +195,35 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
         }
     }
 
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        super.handlerRemoved(ctx);
+        System.out.println("handlerRemoved");
+        String channelId = ctx.channel().id().asLongText();
+        if (iChannelStoreStoreService.containsChannelId(channelId)) {
+            System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
+            //删除Session
+            iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
+            //删除在线统计
+            iChannelStoreStoreService.removeChannelId(channelId);
+        }
 
+    }
+
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+
+        String channelId = ctx.channel().id().asLongText();
+        //System.out.println("SUB------->" + iSubscribeStoreService.getByChannelId(channelId));
+
+        if (iChannelStoreStoreService.containsChannelId(channelId)) {
+            System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
+            //删除Session
+            iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
+            //删除在线统计
+            iChannelStoreStoreService.removeChannelId(channelId);
+        }
+    }
 }

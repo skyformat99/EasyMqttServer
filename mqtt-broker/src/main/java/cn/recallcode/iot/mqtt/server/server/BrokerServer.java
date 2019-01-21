@@ -7,6 +7,7 @@ package cn.recallcode.iot.mqtt.server.server;
 import cn.recallcode.iot.mqtt.server.codec.MqttWebSocketCodec;
 import cn.recallcode.iot.mqtt.server.common.client.IChannelStoreStoreService;
 import cn.recallcode.iot.mqtt.server.common.session.ISessionStoreService;
+import cn.recallcode.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
 import cn.recallcode.iot.mqtt.server.config.BrokerProperties;
 import cn.recallcode.iot.mqtt.server.core.ProtocolResolver;
 import cn.recallcode.iot.mqtt.server.handler.BrokerHandler;
@@ -59,6 +60,9 @@ public class BrokerServer {
 
     @Autowired
     private ISessionStoreService iSessionStoreService;
+
+    @Autowired
+    ISubscribeStoreService iSubscribeStoreService;
 
 
     private EventLoopGroup bossGroup;
@@ -130,7 +134,7 @@ public class BrokerServer {
 
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
-                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreStoreService, iSessionStoreService));
+                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreStoreService, iSessionStoreService,iSubscribeStoreService));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
@@ -165,7 +169,7 @@ public class BrokerServer {
                         channelPipeline.addLast("mqttWebSocket", new MqttWebSocketCodec());
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
-                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreStoreService, iSessionStoreService));
+                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreStoreService, iSessionStoreService,iSubscribeStoreService));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())

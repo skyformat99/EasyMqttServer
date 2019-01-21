@@ -6,6 +6,7 @@ package cn.recallcode.iot.mqtt.server.core;
 
 import cn.recallcode.iot.mqtt.server.common.auth.IAuthService;
 import cn.recallcode.iot.mqtt.server.common.client.IChannelStoreStoreService;
+import cn.recallcode.iot.mqtt.server.common.client.ITopicStoreService;
 import cn.recallcode.iot.mqtt.server.common.message.IDupPubRelMessageStoreService;
 import cn.recallcode.iot.mqtt.server.common.message.IDupPublishMessageStoreService;
 import cn.recallcode.iot.mqtt.server.common.message.IMessageIdService;
@@ -47,10 +48,10 @@ public class ProtocolResolver {
     @Autowired
     private InternalCommunication internalCommunication;
     @Autowired
-    IChannelStoreStoreService iChannelStoreStoreService;
-    @Autowired
-    private ISessionStoreService iSessionStoreService;
+    IChannelStoreStoreService channelStoreStoreService;
 
+    @Autowired
+    private ITopicStoreService topicStoreService;
 
     private Connect connect;
 
@@ -76,7 +77,7 @@ public class ProtocolResolver {
 
     public Connect connect() {
         if (connect == null) {
-            connect = new Connect(iChannelStoreStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
+            connect = new Connect(channelStoreStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
         }
         return connect;
     }
@@ -91,7 +92,7 @@ public class ProtocolResolver {
 
     public Subscribe subscribe() {
         if (subscribe == null) {
-            subscribe = new Subscribe(subscribeStoreService, messageIdService, messageStoreService);
+            subscribe = new Subscribe(subscribeStoreService, messageIdService, messageStoreService, topicStoreService);
         }
         return subscribe;
     }
@@ -116,8 +117,8 @@ public class ProtocolResolver {
                     subscribeStoreService,
                     dupPublishMessageStoreService,
                     dupPubRelMessageStoreService,
-                    iChannelStoreStoreService,
-                    iSessionStoreService);
+                    channelStoreStoreService,
+                    sessionStoreService);
         }
         return disConnect;
     }

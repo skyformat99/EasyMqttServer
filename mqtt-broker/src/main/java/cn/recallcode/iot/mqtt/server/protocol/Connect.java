@@ -123,13 +123,15 @@ public class Connect {
              * 踢下去以后还要把 上线的缓存给清了
              */
 
-            String channelId = channel.id().asLongText();
-            if (iChannelStoreStoreService.containsChannelId(channelId)) {
-                System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
+            //String channelId = channel.id().asLongText();
+            //先获取channelID
+            Channel previousChannel=sessionStore.getChannel();
+            if (iChannelStoreStoreService.containsChannelId(previousChannel.id().asLongText())) {
+                //System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(previousChannel.id().asLongText()));
                 //删除Session
-                iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
+                iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(previousChannel.id().asLongText()).getClientId());
                 //删除在线统计
-                iChannelStoreStoreService.removeChannelId(channelId);
+                iChannelStoreStoreService.removeChannelId(previousChannel.id().asLongText());
             }
 
         }

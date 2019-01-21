@@ -8,6 +8,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.recallcode.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
 import cn.recallcode.iot.mqtt.server.common.subscribe.SubscribeStore;
 import org.apache.ignite.IgniteCache;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
