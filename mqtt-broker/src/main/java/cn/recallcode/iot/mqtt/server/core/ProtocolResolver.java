@@ -99,7 +99,7 @@ public class ProtocolResolver {
 
     public UnSubscribe unSubscribe() {
         if (unSubscribe == null) {
-            unSubscribe = new UnSubscribe(subscribeStoreService);
+            unSubscribe = new UnSubscribe(subscribeStoreService,topicStoreService);
         }
         return unSubscribe;
     }

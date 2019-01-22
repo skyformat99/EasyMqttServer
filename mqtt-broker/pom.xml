@@ -79,6 +79,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.crsh/crsh.shell.telnet -->
+		<dependency>
+			<groupId>org.crsh</groupId>
+			<artifactId>crsh.shell.telnet</artifactId>
+			<version>1.3.0-beta2</version>
+		</dependency>
 
 	</dependencies>
 	<!--构建-->

@@ -65,7 +65,10 @@ public class Subscribe {
                 /**
                  * 缓存TOPIC
                  */
-                iTopicStoreService.put(channel.id().asLongText(), new TopicStore(clientId, topicFilter, mqttQoS.value()));
+                TopicStore topicStore = new TopicStore(clientId, topicFilter, mqttQoS.value());
+
+                iTopicStoreService.put(channel.id().asLongText(), topicStore);
+
                 LOGGER.debug("SUBSCRIBE - clientId: {}, topFilter: {}, QoS: {}", clientId, topicFilter, mqttQoS.value());
             });
             /**

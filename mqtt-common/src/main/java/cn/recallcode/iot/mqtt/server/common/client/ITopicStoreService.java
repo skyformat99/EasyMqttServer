@@ -1,6 +1,7 @@
 package cn.recallcode.iot.mqtt.server.common.client;
 
-import org.apache.ignite.IgniteCache;
+import javax.cache.Cache;
+import java.util.List;
 
 /**
  * Topic 缓存
@@ -23,11 +24,16 @@ public interface ITopicStoreService {
     /**
      *
      */
-    void delete(String channelId);
+    void remove(String channelId);
 
     /**
      *
      */
 
-    IgniteCache<String, TopicStore> all();
+    List<Cache.Entry<String, TopicStore>> listAll(int page, int size);
+
+    /**
+     *
+     */
+    int count();
 }

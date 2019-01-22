@@ -1,10 +1,14 @@
 package cn.recallcode.iot.mqtt.server.common.client;
 
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
+
 import java.io.Serializable;
 
 public class TopicStore implements Serializable {
 
+    @QuerySqlField
     private String clientId;
+    @QuerySqlField(index = true)
 
     private String topicFilter;
 
