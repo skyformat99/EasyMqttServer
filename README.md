@@ -14,17 +14,23 @@ cd mqtt-broker/target
 java -jar 编译好的文件.jar
 ```
 ## Web端口:
-```localhost:2580```
+```
+localhost:2580
+```
+
 ## MQTT  端口
 ```sbtshell
 8885
 ```
+
 ## Hello World
+
 ### 注意：
 ```
 必须安装Python3，然后安装paho库:
 pip3(linux)/pip(windows) install paho-mqtt
 ```
+
 ## 一个最简单的Python客户端测试
 ```python
 import paho.mqtt.client as mqtt
@@ -57,6 +63,7 @@ client.connect("localhost", 8885, 60)
 # manual interface.
 client.loop_forever()
 ```
+
 ##注意：客户端必须有clientId，否则连接不了，而且订阅的topic必须以/开头，这两处为了设计架构，没有按照规范。
 #### 软件架构说明
 ```sbtshell
@@ -132,5 +139,4 @@ iot-mqtt-server
 - `mqtt-broker`模块中包含`Dockerfile`文件可以直接生成镜像
 - 需要注意: 基于集群的实现机制, 在通过`docker run`部署容器时,需要添加--net=host参数
 - `docker run --name=mqtt-broker-service --net=host --restart=always --env-file=/home/rancher/mqtt-broker/env.list -v /home/rancher/mqtt-broker/config/:/opt/mqtt-broker/config/ -v /home/rancher/mqtt-broker/persistence/:/opt/mqtt-broker/persistence/ -d mqtt-broker:1.5`
-
 ```
