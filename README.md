@@ -18,9 +18,13 @@ java -jar 编译好的文件.jar
 ```sbtshell
 8885
 ```
-## Hello World：一个最简单的Python客户端测试
-### 注意：必须安装Python3，然后安装paho库:
-```pip3(linux)/pip(windows) install paho-mqtt```
+## Hello World
+### 注意：
+```
+必须安装Python3，然后安装paho库:
+pip3(linux)/pip(windows) install paho-mqtt
+```
+## 一个最简单的Python客户端测试
 ```python
 import paho.mqtt.client as mqtt
 import time
