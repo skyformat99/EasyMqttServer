@@ -6,7 +6,8 @@
 MQTT文档: https://mcxiaoke.gitbooks.io/mqtt-cn/content/
 ```
 
-## 快速启动
+##  快速启动
+
 ```sbtshell
 mvn -clean
 mvn packge
