@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<!--POM-->
 	<parent>
-		<groupId>cn.recallcode</groupId>
-		<artifactId>iot-mqtt-server</artifactId>
-		<version>${iot-mqtt-server.version}</version>
+		<groupId>com.easyiot.easyjmqtt</groupId>
+		<artifactId>java-iot-mqtt-server</artifactId>
+		<version>0.0.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<!--模块-->
@@ -14,19 +14,19 @@
 	<!--依赖-->
 	<dependencies>
 		<dependency>
-			<groupId>cn.recallcode</groupId>
+			<groupId>com.easyiot.easyjmqtt</groupId>
 			<artifactId>mqtt-common</artifactId>
-			<version>${iot-mqtt-server.version}</version>
+			<version>0.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ignite</groupId>
 			<artifactId>ignite-core</artifactId>
-			<version>${ignite.version}</version>
+			<version>2.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.ignite</groupId>
 			<artifactId>ignite-slf4j</artifactId>
-			<version>${ignite.version}</version>
+			<version>2.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

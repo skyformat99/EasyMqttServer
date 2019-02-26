@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<!--POM-->
 	<parent>
-		<groupId>cn.recallcode</groupId>
-		<artifactId>iot-mqtt-server</artifactId>
-		<version>${iot-mqtt-server.version}</version>
+		<groupId>com.easyiot.easyjmqtt</groupId>
+		<artifactId>java-iot-mqtt-server</artifactId>
+		<version>0.0.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<!--模块-->
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>cn.hutool</groupId>
 			<artifactId>hutool-core</artifactId>
-			<version>${hutool.version}</version>
+			<version>4.1.1</version>
 		</dependency>
 
         <dependency>
