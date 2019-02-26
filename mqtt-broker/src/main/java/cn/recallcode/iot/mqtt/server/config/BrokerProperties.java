@@ -23,6 +23,10 @@ public class BrokerProperties {
 	 * SSL端口号, 默认8883端口
 	 */
 	private int sslPort = 8885;
+	/**
+	 *
+	 */
+	private int mqttPort = 1883;
 
 	/**
 	 * WebSocket SSL端口号, 默认9993端口
@@ -76,6 +80,15 @@ public class BrokerProperties {
 
 	public String getId() {
 		return id;
+	}
+
+	public int getMqttPort() {
+		return mqttPort;
+	}
+
+	public BrokerProperties setMqttPort(int mqttPort) {
+		this.mqttPort = mqttPort;
+		return this;
 	}
 
 	public BrokerProperties setId(String id) {

@@ -6,12 +6,15 @@ spring:
   #profiles: prod
   mqtt:
     broker:
+
       # broker唯一标识
       id: mqtt-broker-1
       # SSL端口
       ssl-port: 8885
       # SSL密钥文件密码
       ssl-password: 123456
+      # MQTT 端口
+      # mqtt-port:1883
       # websocket端口
       websocket-ssl-port: 9995
       # websocket path 值

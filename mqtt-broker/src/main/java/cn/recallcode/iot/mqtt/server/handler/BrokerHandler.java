@@ -50,7 +50,7 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
     }
 
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, MqttMessage msg) throws Exception {
+    protected void messageReceived(ChannelHandlerContext ctx, MqttMessage msg) {
         //System.out.println("消息：" + msg.fixedHeader());
 
         switch (msg.fixedHeader().messageType()) {
