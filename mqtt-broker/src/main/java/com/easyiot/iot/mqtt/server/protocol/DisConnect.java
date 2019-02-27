@@ -61,7 +61,7 @@ public class DisConnect {
          */
         String channelId = channel.id().asLongText();
         if (iChannelStoreStoreService.containsChannelId(channelId)) {
-            System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
+            LOGGER.info("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
             //删除Session
             iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
             //删除在线统计
@@ -77,7 +77,7 @@ public class DisConnect {
             dupPublishMessageStoreService.removeByClient(clientId);
             dupPubRelMessageStoreService.removeByClient(clientId);
         }
-        LOGGER.debug("DISCONNECT - clientId: {}, cleanSession: {}", clientId, sessionStore.isCleanSession());
+        LOGGER.info("DISCONNECT - clientId: {}, cleanSession: {}", clientId, sessionStore.isCleanSession());
         sessionStoreService.remove(clientId);
         channel.close();
     }

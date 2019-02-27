@@ -46,6 +46,12 @@ public class Publish {
         this.internalCommunication = internalCommunication;
     }
 
+    /**
+     * 处理发布消息事件
+     * @param channel
+     * @param msg
+     */
+
     public void processPublish(Channel channel, MqttPublishMessage msg) {
         //System.out.println("publish:" + msg.toString());
         // QoS=0
@@ -94,6 +100,14 @@ public class Publish {
         }
     }
 
+    /**
+     * 发布消息
+     * @param topic
+     * @param mqttQoS
+     * @param messageBytes
+     * @param retain
+     * @param dup
+     */
     private void sendPublishMessage(String topic, MqttQoS mqttQoS, byte[] messageBytes, boolean retain, boolean dup) {
         List<SubscribeStore> subscribeStores = subscribeStoreService.search(topic);
         subscribeStores.forEach(subscribeStore -> {
@@ -104,7 +118,7 @@ public class Publish {
                     MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
                             new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
                             new MqttPublishVariableHeader(topic, 0), Unpooled.buffer().writeBytes(messageBytes));
-                    LOGGER.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}", subscribeStore.getClientId(), topic, respQoS.value());
+                    LOGGER.info("PUBLISH - clientId: {}, topic: {}, Qos: {}", subscribeStore.getClientId(), topic, respQoS.value());
                     sessionStoreService.get(subscribeStore.getClientId()).getChannel().writeAndFlush(publishMessage);
                 }
                 if (respQoS == MqttQoS.AT_LEAST_ONCE) {
@@ -112,7 +126,7 @@ public class Publish {
                     MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
                             new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
                             new MqttPublishVariableHeader(topic, messageId), Unpooled.buffer().writeBytes(messageBytes));
-                    LOGGER.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}, messageId: {}", subscribeStore.getClientId(), topic, respQoS.value(), messageId);
+                    LOGGER.info("PUBLISH - clientId: {}, topic: {}, Qos: {}, messageId: {}", subscribeStore.getClientId(), topic, respQoS.value(), messageId);
                     DupPublishMessageStore dupPublishMessageStore = new DupPublishMessageStore().setClientId(subscribeStore.getClientId())
                             .setTopic(topic).setMqttQoS(respQoS.value()).setMessageBytes(messageBytes);
                     dupPublishMessageStoreService.put(subscribeStore.getClientId(), dupPublishMessageStore);
@@ -123,7 +137,7 @@ public class Publish {
                     MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
                             new MqttFixedHeader(MqttMessageType.PUBLISH, dup, respQoS, retain, 0),
                             new MqttPublishVariableHeader(topic, messageId), Unpooled.buffer().writeBytes(messageBytes));
-                    LOGGER.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}, messageId: {}", subscribeStore.getClientId(), topic, respQoS.value(), messageId);
+                    LOGGER.info("PUBLISH - clientId: {}, topic: {}, Qos: {}, messageId: {}", subscribeStore.getClientId(), topic, respQoS.value(), messageId);
                     DupPublishMessageStore dupPublishMessageStore = new DupPublishMessageStore().setClientId(subscribeStore.getClientId())
                             .setTopic(topic).setMqttQoS(respQoS.value()).setMessageBytes(messageBytes);
                     dupPublishMessageStoreService.put(subscribeStore.getClientId(), dupPublishMessageStore);
@@ -133,12 +147,23 @@ public class Publish {
         });
     }
 
+    /**
+     * 发布 ·发布ACK报文·
+     * @param channel
+     * @param messageId
+     */
     private void sendPubAckMessage(Channel channel, int messageId) {
         MqttPubAckMessage pubAckMessage = (MqttPubAckMessage) MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.PUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 MqttMessageIdVariableHeader.from(messageId), null);
         channel.writeAndFlush(pubAckMessage);
     }
+
+    /**
+     * Rec报文
+     * @param channel
+     * @param messageId
+     */
 
     private void sendPubRecMessage(Channel channel, int messageId) {
         MqttMessage pubRecMessage = MqttMessageFactory.newMessage(

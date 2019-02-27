@@ -29,6 +29,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLEngine;
 import java.io.InputStream;
 import java.security.KeyStore;
 
@@ -122,19 +124,15 @@ public class BrokerServer {
                         // Netty提供的心跳检测
                         /**
                          * 我们在channel链中加入了IdleSateHandler，第一个参数是5，单位是秒，那么这样做的意思就是：
-                         * 在服务器端会每隔5秒来检查一下channelRead方法被调用的情况，如果在5秒内该链上的channelRead方法都没有被触发，就会调用userEventTriggered方法
+                         * 在服务器端会每隔5秒来检查一下channelRead方法被调用的情况，如果在5秒内该链上的channelRead方法都没有被触发，
+                         * 就会调用userEventTriggered方法
                          */
                         channelPipeline.addFirst("idle", new IdleStateHandler(0, 0, brokerProperties.getKeepAlive()));
                         // Netty提供的SSL处理
                         /**
                          * SSL开关
                          */
-                        //SSLEngine sslEngine = sslContext.newEngine(socketChannel.alloc());
-                        //sslEngine.setUseClientMode(false);        // 服务端模式
-                        //sslEngine.setNeedClientAuth(false);        // 不需要验证客户端
-
-                        //channelPipeline.addLast("ssl", new SslHandler(sslEngine));
-
+                        loadSSL(channelPipeline, socketChannel);
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
                         channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreStoreService, iSessionStoreService, iSubscribeStoreService, iTopicStoreService));
@@ -157,11 +155,9 @@ public class BrokerServer {
                         ChannelPipeline channelPipeline = socketChannel.pipeline();
                         // Netty提供的心跳检测
                         channelPipeline.addFirst("idle", new IdleStateHandler(0, 0, brokerProperties.getKeepAlive()));
-//					// Netty提供的SSL处理
-//					SSLEngine sslEngine = sslContext.newEngine(socketChannel.alloc());
-//					sslEngine.setUseClientMode(false);        // 服务端模式
-//					sslEngine.setNeedClientAuth(false);        // 不需要验证客户端
-                        //channelPipeline.addLast("ssl", new SslHandler(sslEngine));
+
+                        loadSSL(channelPipeline, socketChannel);
+
                         // 将请求和应答消息编码或解码为HTTP消息
                         channelPipeline.addLast("http-codec", new HttpServerCodec());
                         // 将HTTP消息的多个部分合成一条完整的HTTP消息
@@ -180,4 +176,14 @@ public class BrokerServer {
         websocketChannel = sb.bind(brokerProperties.getWebsocketSslPort()).sync().channel();
     }
 
+    private void loadSSL(ChannelPipeline channelPipeline, SocketChannel socketChannel) {
+        if (brokerProperties.isUseSSL()) {
+            SSLEngine sslEngine = sslContext.newEngine(socketChannel.alloc());
+            sslEngine.setUseClientMode(false);        // 服务端模式
+            sslEngine.setNeedClientAuth(false);        // 不需要验证客户端
+            channelPipeline.addLast("ssl", new SslHandler(sslEngine));
+
+        }
+
+    }
 }

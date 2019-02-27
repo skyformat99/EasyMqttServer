@@ -60,9 +60,9 @@ public class ChannelStoreService implements IChannelStoreStoreService {
 
 
     @Override
-    public void save(ChannelStore channelStore) {
+    public void save(String key, ChannelStore channelStore) {
 
-
+        channelStoreCache.put(key, channelStore);
     }
 
     @Override

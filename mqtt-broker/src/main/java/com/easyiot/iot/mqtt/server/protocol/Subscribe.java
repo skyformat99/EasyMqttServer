@@ -69,7 +69,7 @@ public class Subscribe {
 
                 iTopicStoreService.put(channel.id().asLongText(), topicStore);
 
-                LOGGER.debug("SUBSCRIBE - clientId: {}, topFilter: {}, QoS: {}", clientId, topicFilter, mqttQoS.value());
+                LOGGER.info("SUBSCRIBE - clientId: {}, topFilter: {}, QoS: {}", clientId, topicFilter, mqttQoS.value());
             });
             /**
 
@@ -160,7 +160,7 @@ public class Subscribe {
                 MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
                         new MqttFixedHeader(MqttMessageType.PUBLISH, false, respQoS, false, 0),
                         new MqttPublishVariableHeader(retainMessageStore.getTopic(), 0), Unpooled.buffer().writeBytes(retainMessageStore.getMessageBytes()));
-                LOGGER.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}", channel.attr(AttributeKey.valueOf("clientId")).get(), retainMessageStore.getTopic(), respQoS.value());
+                LOGGER.info("PUBLISH - clientId: {}, topic: {}, Qos: {}", channel.attr(AttributeKey.valueOf("clientId")).get(), retainMessageStore.getTopic(), respQoS.value());
                 channel.writeAndFlush(publishMessage);
             }
             /**
@@ -194,7 +194,7 @@ public class Subscribe {
         MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.PUBLISH, false, respQoS, false, 0),
                 new MqttPublishVariableHeader(retainMessageStore.getTopic(), messageId), Unpooled.buffer().writeBytes(retainMessageStore.getMessageBytes()));
-        LOGGER.debug("PUBLISH - clientId: {}, topic: {}, Qos: {}, messageId: {}", channel.attr(AttributeKey.valueOf("clientId")).get(), retainMessageStore.getTopic(), respQoS.value(), messageId);
+        LOGGER.info("PUBLISH - clientId: {}, topic: {}, Qos: {}, messageId: {}", channel.attr(AttributeKey.valueOf("clientId")).get(), retainMessageStore.getTopic(), respQoS.value(), messageId);
         channel.writeAndFlush(publishMessage);
     }
 

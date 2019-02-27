@@ -11,12 +11,15 @@ import com.easyiot.iot.mqtt.server.common.session.SessionStore;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
 import com.easyiot.iot.mqtt.server.core.ProtocolResolver;
 import com.easyiot.iot.mqtt.server.override_netty.MessageReceiveHandler;
+import com.easyiot.iot.mqtt.server.protocol.DisConnect;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +30,7 @@ import java.io.IOException;
  */
 @Component
 public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageReceiveHandler.class);
 
     private ProtocolResolver protocolProcess;
 
@@ -225,11 +229,10 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-
         String channelId = ctx.channel().id().asLongText();
         iTopicStoreService.remove(channelId);
         if (iChannelStoreStoreService.containsChannelId(channelId)) {
-            //System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
+            LOGGER.info("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
             //删除Session
             iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
             //删除在线统计

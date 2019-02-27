@@ -43,7 +43,7 @@ public interface IChannelStoreStoreService {
     /**
      * 保存数据库
      */
-    void save(ChannelStore channelStore);
+    void save(String key, ChannelStore channelStore);
     /**
      * 删除
      */

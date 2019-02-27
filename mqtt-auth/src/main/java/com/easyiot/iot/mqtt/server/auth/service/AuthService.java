@@ -5,9 +5,6 @@
 package com.easyiot.iot.mqtt.server.auth.service;
 
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.asymmetric.KeyType;
-import cn.hutool.crypto.asymmetric.RSA;
 import com.easyiot.iot.mqtt.server.common.auth.IAuthService;
 import org.springframework.stereotype.Service;
 
@@ -23,18 +20,32 @@ public class AuthService implements IAuthService {
 
     private RSAPrivateKey privateKey;
 
-    @Override
-    public boolean checkValid(String username, String password) {
-        if (StrUtil.isBlank(username)) return false;
-        if (StrUtil.isBlank(password)) return false;
-        RSA rsa = new RSA(privateKey, null);
-        String value = new String(rsa.encrypt(username, KeyType.PrivateKey));
-        return value.equals(password);
-    }
+
+//    public boolean authRSA(String username, String password) {
+//        if (StrUtil.isBlank(username)) return false;
+//        if (StrUtil.isBlank(password)) return false;
+//        RSA rsa = new RSA(privateKey, null);
+//        String value = new String(rsa.encrypt(username, KeyType.PrivateKey));
+//        return value.equals(password);
+//    }
 
     @PostConstruct
     public void init() {
         privateKey = IoUtil.readObj(Objects.requireNonNull(AuthService.class.getClassLoader().getResourceAsStream("keystore/auth-private.key")));
     }
 
+    @Override
+    public boolean authByUsernameAndPassword(String username, String password) {
+        return true;
+    }
+
+    @Override
+    public boolean authByClientId(String clientId) {
+        return true;
+    }
+
+    @Override
+    public boolean authByIp(String ipAddress) {
+        return true;
+    }
 }

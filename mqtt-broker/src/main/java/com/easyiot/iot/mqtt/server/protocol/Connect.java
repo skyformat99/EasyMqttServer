@@ -5,6 +5,7 @@
 package com.easyiot.iot.mqtt.server.protocol;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.easyiot.iot.mqtt.server.common.auth.IAuthService;
 import com.easyiot.iot.mqtt.server.common.client.ChannelStore;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreStoreService;
@@ -15,7 +16,6 @@ import com.easyiot.iot.mqtt.server.common.message.IDupPublishMessageStoreService
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.session.SessionStore;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
-import com.alibaba.fastjson.JSONObject;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.mqtt.*;
@@ -24,6 +24,7 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -79,9 +80,12 @@ public class Connect {
             channel.close();
             return;
         }
-        // clientId为空或null的情况, 这里要求客户端必须提供clientId, 不管cleanSession是否为1, 此处没有参考标准协议实现
+
+        /**
+         * clientId为空或null的情况, 这里要求客户端必须提供clientId, 不管cleanSession是否为1, 此处没有参考标准协议实现
+         */
         if (StrUtil.isBlank(msg.payload().clientIdentifier())) {
-            LOGGER.debug("CONNECT - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
+            LOGGER.info("CONNECT - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
 
             MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                     new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
@@ -92,18 +96,21 @@ public class Connect {
         }
         /**
          * 用户名和密码认证
+         *
          */
-//		// 用户名和密码验证, 这里要求客户端连接时必须提供用户名和密码, 不管是否设置用户名标志和密码标志为1, 此处没有参考标准协议实现
-//		String username = msg.payload().userName();
-//		String password = msg.payload().passwordInBytes() == null ? null : new String(msg.payload().passwordInBytes(), CharsetUtil.UTF_8);
-//		if (!authService.checkValid(username, password)) {
-//			MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
-//				new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
-//				new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD, false), null);
-//			channel.writeAndFlush(connAckMessage);
-//			channel.close();
-//			return;
-//		}
+        // 用户名和密码验证, 这里要求客户端连接时必须提供用户名和密码, 不管是否设置用户名标志和密码标志为1, 此处没有参考标准协议实现
+        String username = msg.payload().userName();
+        String password = msg.payload().passwordInBytes() == null ? null : new String(msg.payload().passwordInBytes(), StandardCharsets.UTF_8);
+        if (!authService.authByUsernameAndPassword(username, password)) {
+            MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
+                    new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
+                    new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD, false), null);
+            channel.writeAndFlush(connAckMessage);
+            channel.close();
+            return;
+        }
+
+
         /**
          * 把之前的给踢下去
          */
@@ -125,7 +132,7 @@ public class Connect {
 
             //String channelId = channel.id().asLongText();
             //先获取channelID
-            Channel previousChannel=sessionStore.getChannel();
+            Channel previousChannel = sessionStore.getChannel();
             if (iChannelStoreStoreService.containsChannelId(previousChannel.id().asLongText())) {
                 //System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(previousChannel.id().asLongText()));
                 //删除Session
@@ -170,7 +177,7 @@ public class Connect {
                 new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_ACCEPTED, sessionPresent), null);
         channel.writeAndFlush(okResp);
-        LOGGER.debug("CONNECT - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
+        LOGGER.info("CONNECT - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
         /**
          * 把channelID保存进去，以便于后面扩展设备上下线问题
          *
