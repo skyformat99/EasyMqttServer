@@ -1,14 +1,32 @@
 package com.easyiot.iot.mqtt.server.common.client;
 
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
+
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * 在线客户端的一个表述
  */
+
 public class ClientStore {
+    private static final AtomicLong ID_GEN = new AtomicLong();
+
+    /**
+     * Person ID (indexed)
+     */
+    @QuerySqlField(index = true)
+    public long id;
+    @QuerySqlField
     private String clientId;
+    @QuerySqlField
     private String channelId;
+    @QuerySqlField
     private String username;
+    @QuerySqlField
     private String password;
+    @QuerySqlField
     private String willTopic;
+    @QuerySqlField
     private TopicStore topicStore;
 
     public ClientStore() {

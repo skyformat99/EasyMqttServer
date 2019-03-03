@@ -92,7 +92,7 @@ public class BrokerServer {
         kmf.init(keyStore, brokerProperties.getSslPassword().toCharArray());
         sslContext = SslContextBuilder.forServer(kmf).build();
         mqttServer();
-        websocketServer();
+        webSocketServer();
         LOGGER.info("MQTT Broker {} is up and running. Open SSLPort: {} WebSocketSSLPort: {}", "[" + brokerProperties.getId() + "]", brokerProperties.getSslPort(), brokerProperties.getWebsocketSslPort());
     }
 
@@ -110,6 +110,10 @@ public class BrokerServer {
         LOGGER.info("MQTT Broker {} shutdown finish.", "[" + brokerProperties.getId() + "]");
     }
 
+    /**
+     * 加载MQTT服务器
+     * @throws Exception
+     */
     private void mqttServer() throws Exception {
         ServerBootstrap sb = new ServerBootstrap();
         sb.group(bossGroup, workerGroup)
@@ -143,7 +147,11 @@ public class BrokerServer {
         channel = sb.bind(brokerProperties.getSslPort()).sync().channel();
     }
 
-    private void websocketServer() throws Exception {
+    /**
+     * 加载Web Socket服务器
+     * @throws Exception
+     */
+    private void webSocketServer() throws Exception {
         ServerBootstrap sb = new ServerBootstrap();
         sb.group(bossGroup, workerGroup)
                 .channel(brokerProperties.isUseEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)

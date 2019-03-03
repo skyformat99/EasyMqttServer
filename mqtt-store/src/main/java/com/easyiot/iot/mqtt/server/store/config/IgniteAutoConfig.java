@@ -56,6 +56,10 @@ public class IgniteAutoConfig {
     @Bean
     public Ignite ignite() throws Exception {
         IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
+        /**
+         * 控制台日志住处输出频率 0就是关闭输出
+         */
+        igniteConfiguration.setMetricsLogFrequency(0);
         // Ignite实例名称
         igniteConfiguration.setIgniteInstanceName(instanceName);
         // Ignite日志
