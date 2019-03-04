@@ -4,9 +4,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.easyiot.iot.mqtt.server.store.client.ChannelStoreService;
 import com.easyiot.iot.mqtt.server.store.client.TopicStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestController
 public class IndexController {
@@ -40,5 +44,24 @@ public class IndexController {
 
     }
 
+    /**
+     * 根据Token获取用户数据
+     *
+     * @param request
+     * @return
+     */
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
+    private Map<String, Object> getCurrentUser(HttpServletRequest request) {
+        String token = request.getHeader("token");
+        if (token == null) {
+            return null;
+        }
+        try {
+            return jdbcTemplate.queryForMap("SELECT * FROM admin WHERE token=? ", token);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

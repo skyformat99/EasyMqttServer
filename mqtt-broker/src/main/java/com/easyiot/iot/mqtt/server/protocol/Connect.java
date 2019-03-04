@@ -59,6 +59,8 @@ public class Connect {
     public void processConnect(Channel channel, MqttConnectMessage msg) {
         // 消息解码器出现异常
         if (msg.decoderResult().isFailure()) {
+            LOGGER.info("DISCONNECT 消息解码器出现异常 - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
+
             Throwable cause = msg.decoderResult().cause();
             if (cause instanceof MqttUnacceptableProtocolVersionException) {
                 // 不支持的协议版本
@@ -85,7 +87,7 @@ public class Connect {
          * clientId为空或null的情况, 这里要求客户端必须提供clientId, 不管cleanSession是否为1, 此处没有参考标准协议实现
          */
         if (StrUtil.isBlank(msg.payload().clientIdentifier())) {
-            LOGGER.info("CONNECT - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
+            LOGGER.info("DISCONNECT 必须有ClientID - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
 
             MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                     new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
@@ -102,6 +104,8 @@ public class Connect {
         String username = msg.payload().userName();
         String password = msg.payload().passwordInBytes() == null ? null : new String(msg.payload().passwordInBytes(), StandardCharsets.UTF_8);
         if (!authService.authByUsernameAndPassword(username, password)) {
+            LOGGER.info("DISCONNECT 认证失败 - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
+
             MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                     new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                     new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD, false), null);
@@ -116,6 +120,8 @@ public class Connect {
          */
         // 如果会话中已存储这个新连接的clientId, 就关闭之前该clientId的连接
         if (iSessionStoreService.containsKey(msg.payload().clientIdentifier())) {
+            LOGGER.info("DISCONNECT 踢出之前的连接 - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
+
             SessionStore sessionStore = iSessionStoreService.get(msg.payload().clientIdentifier());
             Channel previous = sessionStore.getChannel();
             boolean cleanSession = sessionStore.isCleanSession();
@@ -130,8 +136,6 @@ public class Connect {
              * 踢下去以后还要把 上线的缓存给清了
              */
 
-            //String channelId = channel.id().asLongText();
-            //先获取channelID
             Channel previousChannel = sessionStore.getChannel();
             if (iChannelStoreStoreService.containsChannelId(previousChannel.id().asLongText())) {
                 //System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(previousChannel.id().asLongText()));

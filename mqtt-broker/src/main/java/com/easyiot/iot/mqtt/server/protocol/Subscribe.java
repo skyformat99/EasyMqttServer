@@ -90,7 +90,11 @@ public class Subscribe {
                 this.sendRetainMessage(channel, topicFilter, mqttQoS);
             });
         } else {
-            //主题不符合要求，不让订阅
+            /**
+             *主题不符合要求，不让订阅
+             */
+            LOGGER.info("不允许 SUBSCRIBE ,Topic格式不符合，必须'/'开头，比如/test ");
+
             channel.close();
         }
     }

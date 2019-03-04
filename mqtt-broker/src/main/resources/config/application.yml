@@ -1,9 +1,32 @@
 # 开发环境配置
 server:
   port: 2580
+#url有以下几种形式:
+# jdbc:h2:E:/database 会持久化到磁盘文件，但是是单连接
+# jdbc:h2:tcp://IP/database 通过远程连接的方式
+# jdbc:h2:mem:database 直接在内存中，程序只要重启就会消失
 spring:
-
+  datasource:
+    url: jdbc:h2:./database
+    driver-class-name: org.h2.Driver
+    username: root
+    password: root
+    data: classpath:db/data.sql
+    schema: classpath:db/schema.sql
+  jpa:
+    database: db2
+    hibernate:
+      ddl-auto: create-drop
+#配置能远程访问
+  h2:
+    console:
+      settings:
+        web-allow-others: true
+      path: /h2-console
+      enabled: true
   #profiles: prod
+
+
   mqtt:
     broker:
 
@@ -82,3 +105,10 @@ management:
                         enabled: false
                 sessions:
                         enabled:
+
+
+#进行该配置后，每次启动程序，程序都会运行resources/db/schema.sql文件，对数据库的结构进行操作。
+#spring.datasource.schema=classpath:db/schema.sql
+#进行该配置后，每次启动程序，程序都会运行resources/db/data.sql文件，对数据库的数据操作。
+#spring.datasource.data=classpath:db/data.sql
+

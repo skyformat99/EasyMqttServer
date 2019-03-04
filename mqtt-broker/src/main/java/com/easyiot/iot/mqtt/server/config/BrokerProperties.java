@@ -93,7 +93,7 @@ public class BrokerProperties {
      * UseSSL
      * @return
      */
-    private boolean useSSL;
+    private boolean useSSL=false;
 
 
     public boolean isUseSSL() {

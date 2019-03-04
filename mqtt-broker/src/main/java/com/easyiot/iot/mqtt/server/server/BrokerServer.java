@@ -115,8 +115,8 @@ public class BrokerServer {
      * @throws Exception
      */
     private void mqttServer() throws Exception {
-        ServerBootstrap sb = new ServerBootstrap();
-        sb.group(bossGroup, workerGroup)
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.group(bossGroup, workerGroup)
                 .channel(brokerProperties.isUseEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
                 // handler在初始化时就会执行
                 .handler(new LoggingHandler(LogLevel.INFO))
@@ -144,7 +144,7 @@ public class BrokerServer {
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
                 .childOption(ChannelOption.SO_KEEPALIVE, brokerProperties.isSoKeepAlive());
-        channel = sb.bind(brokerProperties.getSslPort()).sync().channel();
+        channel = serverBootstrap.bind(brokerProperties.getSslPort()).sync().channel();
     }
 
     /**
@@ -152,8 +152,8 @@ public class BrokerServer {
      * @throws Exception
      */
     private void webSocketServer() throws Exception {
-        ServerBootstrap sb = new ServerBootstrap();
-        sb.group(bossGroup, workerGroup)
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.group(bossGroup, workerGroup)
                 .channel(brokerProperties.isUseEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
                 // handler在初始化时就会执行
                 .handler(new LoggingHandler(LogLevel.INFO))
@@ -181,7 +181,7 @@ public class BrokerServer {
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
                 .childOption(ChannelOption.SO_KEEPALIVE, brokerProperties.isSoKeepAlive());
-        websocketChannel = sb.bind(brokerProperties.getWebsocketSslPort()).sync().channel();
+        websocketChannel = serverBootstrap.bind(brokerProperties.getWebsocketSslPort()).sync().channel();
     }
 
     private void loadSSL(ChannelPipeline channelPipeline, SocketChannel socketChannel) {
