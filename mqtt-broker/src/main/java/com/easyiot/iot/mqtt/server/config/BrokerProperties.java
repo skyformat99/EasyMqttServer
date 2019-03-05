@@ -94,7 +94,18 @@ public class BrokerProperties {
      * @return
      */
     private boolean useSSL=false;
+    /**
+     * WEB 控制台的访问密码
+     */
+    private String webConsoleToken;
 
+    public String getWebConsoleToken() {
+        return webConsoleToken;
+    }
+
+    public void setWebConsoleToken(String webConsoleToken) {
+        this.webConsoleToken = webConsoleToken;
+    }
 
     public boolean isUseSSL() {
         return useSSL;

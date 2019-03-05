@@ -43,6 +43,7 @@ public class TopicStoreService implements ITopicStoreService {
         }
         SqlQuery<String, TopicStore> query = new SqlQuery<>(TopicStore.class, String.format("select * from TopicStore limit %s ,%s", page, size));
 
+
         return topicStoreCache.query(query).getAll();
     }
 

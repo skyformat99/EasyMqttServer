@@ -9,8 +9,6 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 
 public class ClientStore {
-    private static final AtomicLong ID_GEN = new AtomicLong();
-
     /**
      * Person ID (indexed)
      */

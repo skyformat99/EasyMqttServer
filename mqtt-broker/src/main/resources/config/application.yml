@@ -45,7 +45,7 @@ spring:
       # websocket端口
       websocket-ssl-port: 9995
       # websocket path 值
-      websocket-path: /mqtt
+      websocket-path: /web-socket-mqtt
       # 心跳时间(秒)
       keep-alive: 60
       # 开启Epoll模式, linux下建议开启
