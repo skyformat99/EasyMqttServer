@@ -97,7 +97,7 @@ public class BrokerProperties {
     /**
      * WEB 控制台的访问密码
      */
-    private String webConsoleToken;
+    private String webConsoleToken="qsedftr45g656hbtreQ#Q$RWDQ";
 
     public String getWebConsoleToken() {
         return webConsoleToken;

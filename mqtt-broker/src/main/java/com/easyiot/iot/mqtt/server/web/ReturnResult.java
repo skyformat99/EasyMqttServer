@@ -3,6 +3,8 @@ package com.easyiot.iot.mqtt.server.web;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.List;
+
 /**
  * Http REST API 返回结果 封装
  */
@@ -57,5 +59,35 @@ public class ReturnResult {
         return returnJson;
     }
 
+    /**
+     * @param code
+     * @param tipMessage
+     * @param data
+     * @return
+     */
+
+    public static JSONObject returnDataMessage(int code, String tipMessage, List data) {
+
+        JSONObject returnJson = new JSONObject();
+        returnJson.put("state", code);
+        returnJson.put("data", data);
+        returnJson.put("message", tipMessage);
+        return returnJson;
+    }
+
+    /**
+     * @param code
+     * @param tipMessage
+     * @param data
+     * @return
+     */
+    public static JSONObject returnDataMessage(int code, String tipMessage, Object data) {
+
+        JSONObject returnJson = new JSONObject();
+        returnJson.put("state", code);
+        returnJson.put("data", data);
+        returnJson.put("message", tipMessage);
+        return returnJson;
+    }
 
 }

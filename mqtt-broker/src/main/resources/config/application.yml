@@ -38,10 +38,14 @@ spring:
       ssl-password: 123456
       # MQTT 端口
       mqtt-port: 1883
-      #
+      # 认证方式
+      # 1 clientID
+      # 2 username && password
       auth-type: 1
-      #
+      # SSL启用
       use-ssl: false
+      #web控制台登陆口令
+      web-console-token: qsedftr45g656hbtreQ#Q$RWDQ
       # websocket端口
       websocket-ssl-port: 9995
       # websocket path 值
@@ -79,12 +83,6 @@ logging:
   level:
     root: info
     com.easyiot.iot.mqtt.server: info
-
-webadmin:
-  username:
-    admin
-  password:
-    password
 
 # Spring监控
 info:

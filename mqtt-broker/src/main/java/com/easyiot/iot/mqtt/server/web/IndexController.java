@@ -6,13 +6,9 @@ import com.easyiot.iot.mqtt.server.store.client.TopicStoreService;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.cluster.ClusterNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 
 /**
  * 设计哲学：
@@ -29,13 +25,13 @@ public class IndexController {
 
     @GetMapping("/")
     public Object index() {
-        return "Run Success!<br> /topics 查看Topic <br> /clients 查看客户端";
+        return "Run Success!";
 
     }
 
     @GetMapping("/topics/{page}/{size}")
     public Object topics(@PathVariable int page, @PathVariable int size) {
-        return JSONObject.toJSONString(topicStoreService.listAll(page, size));
+         return ReturnResult.returnDataMessage(1, "Success", topicStoreService.listAll(page, size));
 
     }
 
@@ -43,49 +39,33 @@ public class IndexController {
 
     public Object channels(@PathVariable int page, @PathVariable int size) {
 
-        return JSONObject.toJSONString(channelStoreService.listAll(page, size));
+         return ReturnResult.returnDataMessage(1, "Success", channelStoreService.listAll(page, size));
 
     }
 
     @GetMapping("/total")
     public Object total() {
-        return JSONObject.toJSONString(channelStoreService.clientCount());
-
+        return ReturnResult.returnDataMessage(1, "Success", channelStoreService.clientCount());
     }
 
-    @GetMapping("/clusterInfo")
-    public Object clusterInfo() {
+    /**
+     * 本地节点信息
+     * @return
+     */
+    @GetMapping("/localNodeInfo")
+    public Object localNodeInfo() {
         try {
             ClusterNode localNode = ignite.cluster().localNode();
             ClusterNodeInfo clusterNodeInfo = new ClusterNodeInfo(localNode);
-            return JSONObject.toJSONString(clusterNodeInfo);
+            return ReturnResult.returnDataMessage(1, "Success", JSONObject.toJSON(clusterNodeInfo));
         } catch (Exception e) {
-            return "Error:" + e.getMessage();
+            JSONObject result = new JSONObject();
+            result.put("code", 0);
+            result.put("message", "Info access failure,Because of internal error!");
+            return result;
 
         }
 
 
-    }
-
-
-    /**
-     * 根据Token获取用户数据
-     *
-     * @param request
-     * @return
-     */
-    @Autowired
-    JdbcTemplate jdbcTemplate;
-
-    private Map<String, Object> getCurrentUser(HttpServletRequest request) {
-        String token = request.getHeader("token");
-        if (token == null) {
-            return null;
-        }
-        try {
-            return jdbcTemplate.queryForMap("SELECT * FROM admin WHERE token=? ", token);
-        } catch (Exception e) {
-            return null;
-        }
     }
 }
