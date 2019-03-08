@@ -9,12 +9,8 @@
 	<packaging>pom</packaging>
 	<!--模块-->
 	<modules>
-		<module>mqtt-auth</module>
-		<module>mqtt-broker</module>
-		<module>mqtt-common</module>
-		<module>mqtt-store</module>
-
-	</modules>
+ 		<module>mqtt-broker</module>
+ 	</modules>
 	<!--属性-->
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>

@@ -2,7 +2,6 @@ package com.easyiot.iot.mqtt.server.web;
 
 import com.alibaba.fastjson.JSONObject;
 import com.easyiot.iot.mqtt.server.config.BrokerProperties;
-import com.oracle.jrockit.jfr.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -37,7 +36,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
             if (token.equals(brokerProperties.getWebConsoleToken())) {
                 return true;
-            }else {
+            } else {
                 JSONObject result = new JSONObject();
                 result.put("code", 0);
                 result.put("message", "Token Illegal!");

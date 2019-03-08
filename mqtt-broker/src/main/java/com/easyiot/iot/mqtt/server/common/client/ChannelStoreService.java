@@ -1,4 +1,4 @@
-package com.easyiot.iot.mqtt.server.store.client;
+package com.easyiot.iot.mqtt.server.common.client;
 
 import com.easyiot.iot.mqtt.server.common.client.ChannelStore;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreStoreService;

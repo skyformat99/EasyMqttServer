@@ -2,8 +2,8 @@ package com.easyiot.iot.mqtt.server.web;
 
 import com.alibaba.fastjson.JSONObject;
 import com.easyiot.iot.mqtt.server.config.BrokerProperties;
-import com.easyiot.iot.mqtt.server.store.client.ChannelStoreService;
-import com.easyiot.iot.mqtt.server.store.client.TopicStoreService;
+import com.easyiot.iot.mqtt.server.common.client.ChannelStoreService;
+import com.easyiot.iot.mqtt.server.common.client.TopicStoreService;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.cluster.ClusterNode;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,10 +2,9 @@
  * Copyright (c) 2018, Mr.Wang (recallcode@aliyun.com) All rights reserved.
  */
 
-package com.easyiot.iot.mqtt.server.auth.service;
+package com.easyiot.iot.mqtt.server.common.auth;
 
 import cn.hutool.core.io.IoUtil;
-import com.easyiot.iot.mqtt.server.common.auth.IAuthService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;

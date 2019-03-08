@@ -2,7 +2,7 @@
  * Copyright (c) 2018, Mr.Wang (recallcode@aliyun.com) All rights reserved.
  */
 
-package com.easyiot.iot.mqtt.server.store.session;
+package com.easyiot.iot.mqtt.server.common.session;
 
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.session.SessionStore;

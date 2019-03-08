@@ -2,7 +2,7 @@
  * Copyright (c) 2018, Mr.Wang (recallcode@aliyun.com) All rights reserved.
  */
 
-package com.easyiot.iot.mqtt.server.store.subscribe;
+package com.easyiot.iot.mqtt.server.common.subscribe;
 
 import cn.hutool.core.util.StrUtil;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
