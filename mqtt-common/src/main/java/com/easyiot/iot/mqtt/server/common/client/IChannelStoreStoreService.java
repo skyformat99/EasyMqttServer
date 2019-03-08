@@ -33,19 +33,11 @@ public interface IChannelStoreStoreService {
     /**
      * 获取所有的数目
      */
-    int clientCount();
+    int count();
 
     /**
      * 获取所有
      */
     List<Cache.Entry<String, ChannelStore>> listAll(int page, int size);
 
-    /**
-     * 保存数据库
-     */
-    void save(String key, ChannelStore channelStore);
-    /**
-     * 删除
-     */
-    void delete(String channelId);
 }

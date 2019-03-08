@@ -1,14 +1,13 @@
 package com.easyiot.iot.mqtt.server.web;
 
 import com.alibaba.fastjson.JSONObject;
+import com.easyiot.iot.mqtt.server.config.BrokerProperties;
 import com.easyiot.iot.mqtt.server.store.client.ChannelStoreService;
 import com.easyiot.iot.mqtt.server.store.client.TopicStoreService;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.cluster.ClusterNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 设计哲学：
@@ -22,6 +21,8 @@ public class IndexController {
     ChannelStoreService channelStoreService;
     @Autowired
     TopicStoreService topicStoreService;
+    @Autowired
+    BrokerProperties brokerProperties;
 
     @GetMapping("/")
     public Object index() {
@@ -29,9 +30,28 @@ public class IndexController {
 
     }
 
+    @PostMapping("/login")
+    public Object login(@RequestBody JSONObject body) {
+        if (body.getString("web_console_token").length() > 0 &&
+                body.getString("web_console_token").equals(brokerProperties.getWebConsoleToken())) {
+            JSONObject result = new JSONObject();
+            result.put("code", 1);
+            result.put("token", brokerProperties.getWebConsoleToken());
+            result.put("message", "Login success!");
+            return result;
+        } else {
+            JSONObject result = new JSONObject();
+            result.put("code", 0);
+            result.put("message", "Login failure!");
+            return result;
+
+        }
+
+    }
+
     @GetMapping("/topics/{page}/{size}")
     public Object topics(@PathVariable int page, @PathVariable int size) {
-         return ReturnResult.returnDataMessage(1, "Success", topicStoreService.listAll(page, size));
+        return ReturnResult.returnDataMessage(1, "Success", topicStoreService.listAll(page, size));
 
     }
 
@@ -39,17 +59,18 @@ public class IndexController {
 
     public Object channels(@PathVariable int page, @PathVariable int size) {
 
-         return ReturnResult.returnDataMessage(1, "Success", channelStoreService.listAll(page, size));
+        return ReturnResult.returnDataMessage(1, "Success", channelStoreService.listAll(page, size));
 
     }
 
     @GetMapping("/total")
     public Object total() {
-        return ReturnResult.returnDataMessage(1, "Success", channelStoreService.clientCount());
+        return ReturnResult.returnDataMessage(1, "Success", channelStoreService.count());
     }
 
     /**
      * 本地节点信息
+     *
      * @return
      */
     @GetMapping("/localNodeInfo")

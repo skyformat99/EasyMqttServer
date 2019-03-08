@@ -42,7 +42,7 @@ public class ChannelStoreService implements IChannelStoreStoreService {
     }
 
     @Override
-    public int clientCount() {
+    public int count() {
         return channelStoreCache.size();
     }
 
@@ -59,15 +59,5 @@ public class ChannelStoreService implements IChannelStoreStoreService {
     }
 
 
-    @Override
-    public void save(String key, ChannelStore channelStore) {
-
-        channelStoreCache.put(key, channelStore);
-    }
-
-    @Override
-    public void delete(String channelId) {
-        channelStoreCache.remove(channelId);
-    }
 
 }
