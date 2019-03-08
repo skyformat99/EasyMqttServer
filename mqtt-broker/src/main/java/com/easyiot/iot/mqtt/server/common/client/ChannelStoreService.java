@@ -1,7 +1,5 @@
 package com.easyiot.iot.mqtt.server.common.client;
 
-import com.easyiot.iot.mqtt.server.common.client.ChannelStore;
-import com.easyiot.iot.mqtt.server.common.client.IChannelStoreStoreService;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.cache.query.SqlQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,7 @@ import java.util.List;
  * 统计在线客户端的
  */
 @Service
-public class ChannelStoreService implements IChannelStoreStoreService {
+public class ChannelStoreService implements IChannelStoreService {
     @Autowired
     IgniteCache<String, ChannelStore> channelStoreCache;
 

@@ -8,7 +8,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.easyiot.iot.mqtt.server.common.auth.IAuthService;
 import com.easyiot.iot.mqtt.server.common.client.ChannelStore;
-import com.easyiot.iot.mqtt.server.common.client.IChannelStoreStoreService;
+import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.message.DupPubRelMessageStore;
 import com.easyiot.iot.mqtt.server.common.message.DupPublishMessageStore;
 import com.easyiot.iot.mqtt.server.common.message.IDupPubRelMessageStoreService;
@@ -44,16 +44,16 @@ public class Connect {
 
     private IAuthService authService;
 
-    private IChannelStoreStoreService iChannelStoreStoreService;
+    private IChannelStoreService iChannelStoreService;
 
 
-    public Connect(IChannelStoreStoreService iChannelStoreStoreService, ISessionStoreService sessionStoreService, ISubscribeStoreService subscribeStoreService, IDupPublishMessageStoreService dupPublishMessageStoreService, IDupPubRelMessageStoreService dupPubRelMessageStoreService, IAuthService authService) {
+    public Connect(IChannelStoreService iChannelStoreService, ISessionStoreService sessionStoreService, ISubscribeStoreService subscribeStoreService, IDupPublishMessageStoreService dupPublishMessageStoreService, IDupPubRelMessageStoreService dupPubRelMessageStoreService, IAuthService authService) {
         this.iSessionStoreService = sessionStoreService;
         this.subscribeStoreService = subscribeStoreService;
         this.dupPublishMessageStoreService = dupPublishMessageStoreService;
         this.dupPubRelMessageStoreService = dupPubRelMessageStoreService;
         this.authService = authService;
-        this.iChannelStoreStoreService = iChannelStoreStoreService;
+        this.iChannelStoreService = iChannelStoreService;
     }
 
     public void processConnect(Channel channel, MqttConnectMessage msg) {
@@ -137,12 +137,12 @@ public class Connect {
              */
 
             Channel previousChannel = sessionStore.getChannel();
-            if (iChannelStoreStoreService.containsChannelId(previousChannel.id().asLongText())) {
+            if (iChannelStoreService.containsChannelId(previousChannel.id().asLongText())) {
                 //System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(previousChannel.id().asLongText()));
                 //删除Session
-                iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(previousChannel.id().asLongText()).getClientId());
+                iSessionStoreService.remove(iChannelStoreService.getByChannelId(previousChannel.id().asLongText()).getClientId());
                 //删除在线统计
-                iChannelStoreStoreService.removeChannelId(previousChannel.id().asLongText());
+                iChannelStoreService.removeChannelId(previousChannel.id().asLongText());
             }
 
         }
@@ -201,7 +201,7 @@ public class Connect {
         willToJson.put("will", JSONObject.parseObject(JSONObject.toJSONString(msg.variableHeader())));
         channelStore.setWillMessageToJson(willToJson);
         channelStore.setChannelToJson(channelToJson);
-        iChannelStoreStoreService.putChannelId(channel.id().asLongText(), channelStore);
+        iChannelStoreService.putChannelId(channel.id().asLongText(), channelStore);
 
         /**
          * 如果cleanSession为0, 需要重发同一clientId存储的未完成的QoS1和QoS2的DUP消息

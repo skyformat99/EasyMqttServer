@@ -1,4 +1,4 @@
-package com.easyiot.iot.mqtt.server.override_netty;
+package com.easyiot.iot.mqtt.server.core;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

@@ -3,7 +3,7 @@ package com.easyiot.iot.mqtt.server.common.client;
 import javax.cache.Cache;
 import java.util.List;
 
-public interface IChannelStoreStoreService {
+public interface IChannelStoreService {
 
     /**
      * 保存channelID

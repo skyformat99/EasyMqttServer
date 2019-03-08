@@ -6,7 +6,6 @@ package com.easyiot.iot.mqtt.server.config;
 
 import cn.hutool.core.util.StrUtil;
 import com.easyiot.iot.mqtt.server.common.client.ChannelStore;
-import com.easyiot.iot.mqtt.server.common.client.ClientStore;
 import com.easyiot.iot.mqtt.server.common.client.TopicStore;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
@@ -125,18 +124,6 @@ public class IgniteAutoConfig {
                 .setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL)
                 .setIndexedTypes(String.class, ChannelStore.class)
                 .setName("channelStoreCache");
-        return ignite().getOrCreateCache(cacheConfiguration);
-    }
-
-
-    @Bean
-    public IgniteCache clientStoreCache() throws Exception {
-        CacheConfiguration cacheConfiguration = new CacheConfiguration()
-                .setDataRegionName("not-persistence-data-region")
-                .setCacheMode(CacheMode.PARTITIONED)
-                .setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL)
-                .setIndexedTypes(String.class, ClientStore.class)
-                .setName("clientStoreCache");
         return ignite().getOrCreateCache(cacheConfiguration);
     }
 
