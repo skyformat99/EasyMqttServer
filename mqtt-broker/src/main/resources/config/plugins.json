@@ -4,7 +4,7 @@
     {
       "name": "config",
       "version": "0.0.1",
-      "package": ""
+      "package": "com.app.Plugin"
     }
   ]
 }

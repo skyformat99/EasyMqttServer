@@ -78,7 +78,7 @@ public class BrokerServer {
 
     private Channel channel;
 
-    private Channel websocketChannel;
+    private Channel webSocketChannel;
 
     @PostConstruct
     public void start() throws Exception {
@@ -93,7 +93,7 @@ public class BrokerServer {
         sslContext = SslContextBuilder.forServer(kmf).build();
         mqttServer();
         webSocketServer();
-        LOGGER.info("MQTT Broker {} is up and running. Open SSLPort: {} WebSocketSSLPort: {}", "[" + brokerProperties.getId() + "]", brokerProperties.getSslPort(), brokerProperties.getWebsocketSslPort());
+        LOGGER.info("MQTT Broker {} is up and running. Open SSLPort: {} WebSocketSSLPort: {}", "[" + brokerProperties.getId() + "]", brokerProperties.getSslPort(), brokerProperties.getWebSocketSslPort());
     }
 
     @PreDestroy
@@ -105,13 +105,14 @@ public class BrokerServer {
         workerGroup = null;
         channel.closeFuture().syncUninterruptibly();
         channel = null;
-        websocketChannel.closeFuture().syncUninterruptibly();
-        websocketChannel = null;
+        webSocketChannel.closeFuture().syncUninterruptibly();
+        webSocketChannel = null;
         LOGGER.info("MQTT Broker {} shutdown finish.", "[" + brokerProperties.getId() + "]");
     }
 
     /**
      * 加载MQTT服务器
+     *
      * @throws Exception
      */
     private void mqttServer() throws Exception {
@@ -144,11 +145,18 @@ public class BrokerServer {
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
                 .childOption(ChannelOption.SO_KEEPALIVE, brokerProperties.isSoKeepAlive());
-        channel = serverBootstrap.bind(brokerProperties.getSslPort()).sync().channel();
+        if (brokerProperties.isUseSSL()) {
+            channel = serverBootstrap.bind(brokerProperties.getSslPort()).sync().channel();
+
+        } else {
+            channel = serverBootstrap.bind(brokerProperties.getMqttPort()).sync().channel();
+
+        }
     }
 
     /**
      * 加载Web Socket服务器
+     *
      * @throws Exception
      */
     private void webSocketServer() throws Exception {
@@ -172,7 +180,7 @@ public class BrokerServer {
                         channelPipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
                         // 将HTTP消息进行压缩编码
                         channelPipeline.addLast("compressor ", new HttpContentCompressor());
-                        channelPipeline.addLast("protocol", new WebSocketServerProtocolHandler(brokerProperties.getWebsocketPath(), "mqtt,mqttv3.1,mqttv3.1.1", true, 65536));
+                        channelPipeline.addLast("protocol", new WebSocketServerProtocolHandler(brokerProperties.getWebSocketPath(), "mqtt,mqttv3.1,mqttv3.1.1", true, 65536));
                         channelPipeline.addLast("mqttWebSocket", new MqttWebSocketCodec());
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
@@ -181,7 +189,9 @@ public class BrokerServer {
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
                 .childOption(ChannelOption.SO_KEEPALIVE, brokerProperties.isSoKeepAlive());
-        websocketChannel = serverBootstrap.bind(brokerProperties.getWebsocketSslPort()).sync().channel();
+        webSocketChannel = serverBootstrap.bind(brokerProperties.getWebSocketSslPort()).sync().channel();
+
+
     }
 
     private void loadSSL(ChannelPipeline channelPipeline, SocketChannel socketChannel) {

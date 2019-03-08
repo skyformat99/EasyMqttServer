@@ -31,12 +31,12 @@ public class BrokerProperties {
     /**
      * WebSocket SSL端口号, 默认9993端口
      */
-    private int websocketSslPort = 9995;
+    private int webSocketSslPort = 9995;
 
     /**
      * WebSocket Path值, 默认值 /mqtt
      */
-    private String websocketPath = "/mqtt";
+    private String webSocketPath = "/web-socket-mqtt";
 
     /**
      * SSL密钥文件密码
@@ -150,22 +150,20 @@ public class BrokerProperties {
         return this;
     }
 
-    public int getWebsocketSslPort() {
-        return websocketSslPort;
+    public int getWebSocketSslPort() {
+        return webSocketSslPort;
     }
 
-    public BrokerProperties setWebsocketSslPort(int websocketSslPort) {
-        this.websocketSslPort = websocketSslPort;
-        return this;
+    public void setWebSocketSslPort(int webSocketSslPort) {
+        this.webSocketSslPort = webSocketSslPort;
     }
 
-    public String getWebsocketPath() {
-        return websocketPath;
+    public String getWebSocketPath() {
+        return webSocketPath;
     }
 
-    public BrokerProperties setWebsocketPath(String websocketPath) {
-        this.websocketPath = websocketPath;
-        return this;
+    public void setWebSocketPath(String webSocketPath) {
+        this.webSocketPath = webSocketPath;
     }
 
     public String getSslPassword() {
