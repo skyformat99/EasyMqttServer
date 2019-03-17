@@ -5,7 +5,7 @@
 package com.easyiot.iot.mqtt.server.server;
 
 import com.easyiot.iot.mqtt.server.codec.MqttWebSocketCodec;
-import com.easyiot.iot.mqtt.server.common.client.IChannelStoreStoreService;
+import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.client.ITopicStoreService;
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
@@ -58,7 +58,7 @@ public class BrokerServer {
     private ProtocolResolver protocolProcess;
 
     @Autowired
-    private IChannelStoreStoreService iChannelStoreStoreService;
+    private IChannelStoreService iChannelStoreService;
 
     @Autowired
     private ISessionStoreService iSessionStoreService;
@@ -78,7 +78,7 @@ public class BrokerServer {
 
     private Channel channel;
 
-    private Channel websocketChannel;
+    private Channel webSocketChannel;
 
     @PostConstruct
     public void start() throws Exception {
@@ -92,8 +92,8 @@ public class BrokerServer {
         kmf.init(keyStore, brokerProperties.getSslPassword().toCharArray());
         sslContext = SslContextBuilder.forServer(kmf).build();
         mqttServer();
-        websocketServer();
-        LOGGER.info("MQTT Broker {} is up and running. Open SSLPort: {} WebSocketSSLPort: {}", "[" + brokerProperties.getId() + "]", brokerProperties.getSslPort(), brokerProperties.getWebsocketSslPort());
+        webSocketServer();
+        LOGGER.info("MQTT Broker {} is up and running. Open SSLPort: {} WebSocketSSLPort: {}", "[" + brokerProperties.getId() + "]", brokerProperties.getSslPort(), brokerProperties.getWebSocketSslPort());
     }
 
     @PreDestroy
@@ -105,14 +105,19 @@ public class BrokerServer {
         workerGroup = null;
         channel.closeFuture().syncUninterruptibly();
         channel = null;
-        websocketChannel.closeFuture().syncUninterruptibly();
-        websocketChannel = null;
+        webSocketChannel.closeFuture().syncUninterruptibly();
+        webSocketChannel = null;
         LOGGER.info("MQTT Broker {} shutdown finish.", "[" + brokerProperties.getId() + "]");
     }
 
+    /**
+     * 加载MQTT服务器
+     *
+     * @throws Exception
+     */
     private void mqttServer() throws Exception {
-        ServerBootstrap sb = new ServerBootstrap();
-        sb.group(bossGroup, workerGroup)
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.group(bossGroup, workerGroup)
                 .channel(brokerProperties.isUseEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
                 // handler在初始化时就会执行
                 .handler(new LoggingHandler(LogLevel.INFO))
@@ -135,17 +140,28 @@ public class BrokerServer {
                         loadSSL(channelPipeline, socketChannel);
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
-                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreStoreService, iSessionStoreService, iSubscribeStoreService, iTopicStoreService));
+                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreService, iSessionStoreService, iSubscribeStoreService, iTopicStoreService));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
                 .childOption(ChannelOption.SO_KEEPALIVE, brokerProperties.isSoKeepAlive());
-        channel = sb.bind(brokerProperties.getSslPort()).sync().channel();
+        if (brokerProperties.isUseSSL()) {
+            channel = serverBootstrap.bind(brokerProperties.getSslPort()).sync().channel();
+
+        } else {
+            channel = serverBootstrap.bind(brokerProperties.getMqttPort()).sync().channel();
+
+        }
     }
 
-    private void websocketServer() throws Exception {
-        ServerBootstrap sb = new ServerBootstrap();
-        sb.group(bossGroup, workerGroup)
+    /**
+     * 加载Web Socket服务器
+     *
+     * @throws Exception
+     */
+    private void webSocketServer() throws Exception {
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.group(bossGroup, workerGroup)
                 .channel(brokerProperties.isUseEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
                 // handler在初始化时就会执行
                 .handler(new LoggingHandler(LogLevel.INFO))
@@ -164,16 +180,18 @@ public class BrokerServer {
                         channelPipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
                         // 将HTTP消息进行压缩编码
                         channelPipeline.addLast("compressor ", new HttpContentCompressor());
-                        channelPipeline.addLast("protocol", new WebSocketServerProtocolHandler(brokerProperties.getWebsocketPath(), "mqtt,mqttv3.1,mqttv3.1.1", true, 65536));
+                        channelPipeline.addLast("protocol", new WebSocketServerProtocolHandler(brokerProperties.getWebSocketPath(), "mqtt,mqttv3.1,mqttv3.1.1", true, 65536));
                         channelPipeline.addLast("mqttWebSocket", new MqttWebSocketCodec());
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
-                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreStoreService, iSessionStoreService, iSubscribeStoreService, iTopicStoreService));
+                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreService, iSessionStoreService, iSubscribeStoreService, iTopicStoreService));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
                 .childOption(ChannelOption.SO_KEEPALIVE, brokerProperties.isSoKeepAlive());
-        websocketChannel = sb.bind(brokerProperties.getWebsocketSslPort()).sync().channel();
+        webSocketChannel = serverBootstrap.bind(brokerProperties.getWebSocketSslPort()).sync().channel();
+
+
     }
 
     private void loadSSL(ChannelPipeline channelPipeline, SocketChannel socketChannel) {

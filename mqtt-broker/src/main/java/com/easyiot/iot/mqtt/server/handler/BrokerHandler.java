@@ -4,14 +4,13 @@
 
 package com.easyiot.iot.mqtt.server.handler;
 
-import com.easyiot.iot.mqtt.server.common.client.IChannelStoreStoreService;
+import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.client.ITopicStoreService;
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.session.SessionStore;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
+import com.easyiot.iot.mqtt.server.core.MessageReceiveHandler;
 import com.easyiot.iot.mqtt.server.core.ProtocolResolver;
-import com.easyiot.iot.mqtt.server.override_netty.MessageReceiveHandler;
-import com.easyiot.iot.mqtt.server.protocol.DisConnect;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
@@ -34,7 +33,7 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
 
     private ProtocolResolver protocolProcess;
 
-    private IChannelStoreStoreService iChannelStoreStoreService;
+    private IChannelStoreService iChannelStoreService;
     private ISessionStoreService iSessionStoreService;
     private ISubscribeStoreService iSubscribeStoreService;
     private ITopicStoreService iTopicStoreService;
@@ -42,12 +41,12 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
 
     @Autowired
     public BrokerHandler(ProtocolResolver protocolProcess,
-                         IChannelStoreStoreService iChannelStoreStoreService,
+                         IChannelStoreService iChannelStoreService,
                          ISessionStoreService iSessionStoreService,
                          ISubscribeStoreService iSubscribeStoreService,
                          ITopicStoreService iTopicStoreService) {
         this.protocolProcess = protocolProcess;
-        this.iChannelStoreStoreService = iChannelStoreStoreService;
+        this.iChannelStoreService = iChannelStoreService;
         this.iSessionStoreService = iSessionStoreService;
         this.iSubscribeStoreService = iSubscribeStoreService;
         this.iTopicStoreService = iTopicStoreService;
@@ -231,12 +230,12 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
         super.channelInactive(ctx);
         String channelId = ctx.channel().id().asLongText();
         iTopicStoreService.remove(channelId);
-        if (iChannelStoreStoreService.containsChannelId(channelId)) {
-            LOGGER.info("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
+        if (iChannelStoreService.containsChannelId(channelId)) {
+            LOGGER.info("设备异常掉线:" + iChannelStoreService.getByChannelId(channelId));
             //删除Session
-            iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
+            iSessionStoreService.remove(iChannelStoreService.getByChannelId(channelId).getClientId());
             //删除在线统计
-            iChannelStoreStoreService.removeChannelId(channelId);
+            iChannelStoreService.removeChannelId(channelId);
         }
     }
 }

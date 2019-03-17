@@ -2,12 +2,31 @@
 server:
   port: 2580
 spring:
-
+  datasource:
+    url: jdbc:h2:./database
+    driver-class-name: org.h2.Driver
+    username: root
+    password: root
+    # data: classpath:db/data.sql
+    # schema: classpath:db/schema.sql
+  jpa:
+    database: db2
+    hibernate:
+      ddl-auto: create-drop
+#配置能远程访问
+  h2:
+    console:
+      settings:
+        web-allow-others: true
+      path: /h2-console
+      enabled: true
   #profiles: prod
+
+
   mqtt:
     broker:
 
-      # broker唯一标识
+      # broker唯一标识,集群的时候使用
       id: mqtt-broker-1
       # SSL端口
       ssl-port: 8885
@@ -15,14 +34,18 @@ spring:
       ssl-password: 123456
       # MQTT 端口
       mqtt-port: 1883
-      #
+      # 认证方式
+      # 1 clientID
+      # 2 username && password
       auth-type: 1
-      #
+      # SSL启用
       use-ssl: false
+      #web控制台登陆口令
+      web-console-token: qsedftr45g656hbtreQ#Q$RWDQ
       # websocket端口
       websocket-ssl-port: 9995
       # websocket path 值
-      websocket-path: /mqtt
+      websocket-path: /web-socket-mqtt
       # 心跳时间(秒)
       keep-alive: 60
       # 开启Epoll模式, linux下建议开启
@@ -42,26 +65,11 @@ spring:
         not-persistence-max-size: 128
         # persistence-store-path: /mqtt-broker/persistence
 
-  thymeleaf:
-    cache: false
-    prefix: classpath:/templates/
-    suffix: .html
-    encoding: UTF-8
-    mode: HTML
-    servlet:
-      content-type: text/html
-
 # 日志 默认是debug
 logging:
   level:
     root: info
     com.easyiot.iot.mqtt.server: info
-
-webadmin:
-  username:
-    admin
-  password:
-    password
 
 # Spring监控
 info:

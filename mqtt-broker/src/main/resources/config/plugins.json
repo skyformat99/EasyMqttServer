@@ -1,0 +1,10 @@
+
+{
+  "plugins": [
+    {
+      "name": "config",
+      "version": "0.0.1",
+      "package": "com.app.Plugin"
+    }
+  ]
+}

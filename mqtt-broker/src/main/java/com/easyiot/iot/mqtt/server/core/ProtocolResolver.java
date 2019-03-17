@@ -5,7 +5,7 @@
 package com.easyiot.iot.mqtt.server.core;
 
 import com.easyiot.iot.mqtt.server.common.auth.IAuthService;
-import com.easyiot.iot.mqtt.server.common.client.IChannelStoreStoreService;
+import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.client.ITopicStoreService;
 import com.easyiot.iot.mqtt.server.common.message.IDupPubRelMessageStoreService;
 import com.easyiot.iot.mqtt.server.common.message.IDupPublishMessageStoreService;
@@ -48,7 +48,7 @@ public class ProtocolResolver {
     @Autowired
     private InternalCommunication internalCommunication;
     @Autowired
-    IChannelStoreStoreService channelStoreStoreService;
+    IChannelStoreService iChannelStoreService;
 
     @Autowired
     private ITopicStoreService topicStoreService;
@@ -77,7 +77,7 @@ public class ProtocolResolver {
 
     public Connect connect() {
         if (connect == null) {
-            connect = new Connect(channelStoreStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
+            connect = new Connect(iChannelStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
         }
         return connect;
     }
@@ -117,7 +117,7 @@ public class ProtocolResolver {
                     subscribeStoreService,
                     dupPublishMessageStoreService,
                     dupPubRelMessageStoreService,
-                    channelStoreStoreService,
+                    iChannelStoreService,
                     sessionStoreService);
         }
         return disConnect;

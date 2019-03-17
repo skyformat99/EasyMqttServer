@@ -4,7 +4,7 @@
 
 package com.easyiot.iot.mqtt.server.protocol;
 
-import com.easyiot.iot.mqtt.server.common.client.IChannelStoreStoreService;
+import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.message.IDupPubRelMessageStoreService;
 import com.easyiot.iot.mqtt.server.common.message.IDupPublishMessageStoreService;
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
@@ -32,7 +32,7 @@ public class DisConnect {
 
     private IDupPubRelMessageStoreService dupPubRelMessageStoreService;
 
-    private IChannelStoreStoreService iChannelStoreStoreService;
+    private IChannelStoreService iChannelStoreService;
 
     private ISessionStoreService iSessionStoreService;
 
@@ -41,13 +41,13 @@ public class DisConnect {
                       ISubscribeStoreService subscribeStoreService,
                       IDupPublishMessageStoreService dupPublishMessageStoreService,
                       IDupPubRelMessageStoreService dupPubRelMessageStoreService,
-                      IChannelStoreStoreService iChannelStoreStoreService,
+                      IChannelStoreService iChannelStoreService,
                       ISessionStoreService iSessionStoreService) {
         this.sessionStoreService = sessionStoreService;
         this.subscribeStoreService = subscribeStoreService;
         this.dupPublishMessageStoreService = dupPublishMessageStoreService;
         this.dupPubRelMessageStoreService = dupPubRelMessageStoreService;
-        this.iChannelStoreStoreService = iChannelStoreStoreService;
+        this.iChannelStoreService = iChannelStoreService;
         this.iSessionStoreService = iSessionStoreService;
 
     }
@@ -60,12 +60,12 @@ public class DisConnect {
          * 删除在线设备
          */
         String channelId = channel.id().asLongText();
-        if (iChannelStoreStoreService.containsChannelId(channelId)) {
-            LOGGER.info("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
+        if (iChannelStoreService.containsChannelId(channelId)) {
+            LOGGER.info("设备异常掉线:" + iChannelStoreService.getByChannelId(channelId));
             //删除Session
-            iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
+            iSessionStoreService.remove(iChannelStoreService.getByChannelId(channelId).getClientId());
             //删除在线统计
-            iChannelStoreStoreService.removeChannelId(channelId);
+            iChannelStoreService.removeChannelId(channelId);
         }
 
 

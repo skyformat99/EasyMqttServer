@@ -14,15 +14,15 @@ import org.slf4j.LoggerFactory;
 public class ConnAck {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnAck.class);
 
-    private ISessionStoreService sessionStoreService;
+    private final ISessionStoreService sessionStoreService;
 
-    private ISubscribeStoreService subscribeStoreService;
+    private final ISubscribeStoreService subscribeStoreService;
 
-    private IDupPublishMessageStoreService dupPublishMessageStoreService;
+    private final IDupPublishMessageStoreService dupPublishMessageStoreService;
 
-    private IDupPubRelMessageStoreService dupPubRelMessageStoreService;
+    private final IDupPubRelMessageStoreService dupPubRelMessageStoreService;
 
-    private IAuthService authService;
+    private final IAuthService authService;
 
     public ConnAck(ISessionStoreService sessionStoreService, ISubscribeStoreService subscribeStoreService, IDupPublishMessageStoreService dupPublishMessageStoreService, IDupPubRelMessageStoreService dupPubRelMessageStoreService, IAuthService authService) {
 

@@ -16,6 +16,7 @@ import io.netty.handler.codec.mqtt.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -48,6 +49,7 @@ public class Publish {
 
     /**
      * 处理发布消息事件
+     *
      * @param channel
      * @param msg
      */
@@ -102,6 +104,7 @@ public class Publish {
 
     /**
      * 发布消息
+     *
      * @param topic
      * @param mqttQoS
      * @param messageBytes
@@ -109,10 +112,16 @@ public class Publish {
      * @param dup
      */
     private void sendPublishMessage(String topic, MqttQoS mqttQoS, byte[] messageBytes, boolean retain, boolean dup) {
+        try {
+            LOGGER.info("PUBLISH -  topic: {}, Qos: {}, message: {} ,retain{} , dup{}", topic, mqttQoS, new String(messageBytes, "utf-8"),retain,dup);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("Unsupported encoding!");
+        }
         List<SubscribeStore> subscribeStores = subscribeStoreService.search(topic);
         subscribeStores.forEach(subscribeStore -> {
             if (sessionStoreService.containsKey(subscribeStore.getClientId())) {
                 // 订阅者收到MQTT消息的QoS级别, 最终取决于发布消息的QoS和主题订阅的QoS
+                //0
                 MqttQoS respQoS = mqttQoS.value() > subscribeStore.getMqttQoS() ? MqttQoS.valueOf(subscribeStore.getMqttQoS()) : mqttQoS;
                 if (respQoS == MqttQoS.AT_MOST_ONCE) {
                     MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
@@ -121,6 +130,7 @@ public class Publish {
                     LOGGER.info("PUBLISH - clientId: {}, topic: {}, Qos: {}", subscribeStore.getClientId(), topic, respQoS.value());
                     sessionStoreService.get(subscribeStore.getClientId()).getChannel().writeAndFlush(publishMessage);
                 }
+                //1
                 if (respQoS == MqttQoS.AT_LEAST_ONCE) {
                     int messageId = messageIdService.getNextMessageId();
                     MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
@@ -132,6 +142,7 @@ public class Publish {
                     dupPublishMessageStoreService.put(subscribeStore.getClientId(), dupPublishMessageStore);
                     sessionStoreService.get(subscribeStore.getClientId()).getChannel().writeAndFlush(publishMessage);
                 }
+                //2
                 if (respQoS == MqttQoS.EXACTLY_ONCE) {
                     int messageId = messageIdService.getNextMessageId();
                     MqttPublishMessage publishMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
@@ -149,6 +160,7 @@ public class Publish {
 
     /**
      * 发布 ·发布ACK报文·
+     *
      * @param channel
      * @param messageId
      */
@@ -161,6 +173,7 @@ public class Publish {
 
     /**
      * Rec报文
+     *
      * @param channel
      * @param messageId
      */
