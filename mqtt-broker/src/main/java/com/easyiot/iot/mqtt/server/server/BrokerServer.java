@@ -4,14 +4,14 @@
 
 package com.easyiot.iot.mqtt.server.server;
 
-import com.easyiot.iot.mqtt.server.codec.MqttWebSocketCodec;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.client.ITopicStoreService;
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
 import com.easyiot.iot.mqtt.server.config.BrokerProperties;
+import com.easyiot.iot.mqtt.server.core.BrokerHandler;
+import com.easyiot.iot.mqtt.server.core.MqttWebSocketCodec;
 import com.easyiot.iot.mqtt.server.core.ProtocolResolver;
-import com.easyiot.iot.mqtt.server.handler.BrokerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -140,7 +140,7 @@ public class BrokerServer {
                         loadSSL(channelPipeline, socketChannel);
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
-                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreService, iSessionStoreService, iSubscribeStoreService, iTopicStoreService));
+                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreService, iSessionStoreService, iTopicStoreService));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
@@ -184,7 +184,7 @@ public class BrokerServer {
                         channelPipeline.addLast("mqttWebSocket", new MqttWebSocketCodec());
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
-                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreService, iSessionStoreService, iSubscribeStoreService, iTopicStoreService));
+                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreService, iSessionStoreService, iTopicStoreService));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())

@@ -5,6 +5,7 @@ import com.easyiot.iot.mqtt.server.common.client.ChannelStore
 import com.easyiot.iot.mqtt.server.common.client.ChannelStoreService
 import com.easyiot.iot.mqtt.server.common.client.TopicStoreService
 import com.easyiot.iot.mqtt.server.config.BrokerProperties
+import com.easyiot.iot.mqtt.server.plugin.PluginLoader
 import org.apache.ignite.Ignite
 import org.apache.ignite.cluster.ClusterNode
 import org.springframework.beans.factory.annotation.Autowired
@@ -104,5 +105,13 @@ class DashBoardController {
             }
         }
 
+    }
+
+    @Autowired
+    PluginLoader pluginLoader
+
+    @GetMapping(value = "/plugins")
+    def plugins() {
+        return [code: 1, "message": "Success", data: pluginLoader.pluginList()]
     }
 }

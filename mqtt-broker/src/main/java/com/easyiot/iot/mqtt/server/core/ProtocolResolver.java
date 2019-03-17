@@ -14,6 +14,8 @@ import com.easyiot.iot.mqtt.server.common.message.IRetainMessageStoreService;
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
 import com.easyiot.iot.mqtt.server.internal.InternalCommunication;
+import com.easyiot.iot.mqtt.server.plugin.AuthPlugin;
+import com.easyiot.iot.mqtt.server.plugin.MessagePersistencePlugin;
 import com.easyiot.iot.mqtt.server.protocol.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -51,8 +53,13 @@ public class ProtocolResolver {
     IChannelStoreService iChannelStoreService;
 
     @Autowired
+    AuthPlugin authPlugin;
+
+    @Autowired
     private ITopicStoreService topicStoreService;
 
+    @Autowired
+    private MessagePersistencePlugin messagePersistencePlugin;
     private Connect connect;
 
     private ConnAck connAck;
@@ -75,14 +82,14 @@ public class ProtocolResolver {
 
     private PubComp pubComp;
 
-    public Connect connect() {
+    Connect connect() {
         if (connect == null) {
-            connect = new Connect(iChannelStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
+            connect = new Connect(iChannelStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService, authPlugin);
         }
         return connect;
     }
 
-    public ConnAck connAck() {
+    ConnAck connAck() {
         if (connAck == null) {
             connAck = new ConnAck(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
         }
@@ -97,21 +104,21 @@ public class ProtocolResolver {
         return subscribe;
     }
 
-    public UnSubscribe unSubscribe() {
+    UnSubscribe unSubscribe() {
         if (unSubscribe == null) {
             unSubscribe = new UnSubscribe(subscribeStoreService, topicStoreService);
         }
         return unSubscribe;
     }
 
-    public Publish publish() {
+    Publish publish() {
         if (publish == null) {
-            publish = new Publish(sessionStoreService, subscribeStoreService, messageIdService, messageStoreService, dupPublishMessageStoreService, internalCommunication);
+            publish = new Publish(sessionStoreService, subscribeStoreService, messageIdService, messageStoreService, dupPublishMessageStoreService, internalCommunication, messagePersistencePlugin);
         }
         return publish;
     }
 
-    public DisConnect disConnect() {
+    DisConnect disConnect() {
         if (disConnect == null) {
             disConnect = new DisConnect(sessionStoreService,
                     subscribeStoreService,
@@ -123,42 +130,42 @@ public class ProtocolResolver {
         return disConnect;
     }
 
-    public PingReq pingReq() {
+    PingReq pingReq() {
         if (pingReq == null) {
             pingReq = new PingReq();
         }
         return pingReq;
     }
 
-    public PubRel pubRel() {
+    PubRel pubRel() {
         if (pubRel == null) {
             pubRel = new PubRel();
         }
         return pubRel;
     }
 
-    public PubAck pubAck() {
+    PubAck pubAck() {
         if (pubAck == null) {
             pubAck = new PubAck(messageIdService, dupPublishMessageStoreService);
         }
         return pubAck;
     }
 
-    public PubRec pubRec() {
+    PubRec pubRec() {
         if (pubRec == null) {
             pubRec = new PubRec(dupPublishMessageStoreService, dupPubRelMessageStoreService);
         }
         return pubRec;
     }
 
-    public PubComp pubComp() {
+    PubComp pubComp() {
         if (pubComp == null) {
             pubComp = new PubComp(messageIdService, dupPubRelMessageStoreService);
         }
         return pubComp;
     }
 
-    public ISessionStoreService getSessionStoreService() {
+    ISessionStoreService getSessionStoreService() {
         return sessionStoreService;
     }
 

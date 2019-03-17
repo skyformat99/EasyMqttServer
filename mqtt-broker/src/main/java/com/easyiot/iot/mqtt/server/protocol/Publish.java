@@ -10,6 +10,7 @@ import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
 import com.easyiot.iot.mqtt.server.common.subscribe.SubscribeStore;
 import com.easyiot.iot.mqtt.server.internal.InternalCommunication;
 import com.easyiot.iot.mqtt.server.internal.InternalMessage;
+import com.easyiot.iot.mqtt.server.plugin.MessagePersistencePlugin;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.mqtt.*;
@@ -38,13 +39,22 @@ public class Publish {
 
     private InternalCommunication internalCommunication;
 
-    public Publish(ISessionStoreService sessionStoreService, ISubscribeStoreService subscribeStoreService, IMessageIdService messageIdService, IRetainMessageStoreService retainMessageStoreService, IDupPublishMessageStoreService dupPublishMessageStoreService, InternalCommunication internalCommunication) {
+    private MessagePersistencePlugin messagePersistencePlugin;
+
+    public Publish(ISessionStoreService sessionStoreService,
+                   ISubscribeStoreService subscribeStoreService,
+                   IMessageIdService messageIdService,
+                   IRetainMessageStoreService retainMessageStoreService,
+                   IDupPublishMessageStoreService dupPublishMessageStoreService,
+                   InternalCommunication internalCommunication,
+                   MessagePersistencePlugin messagePersistencePlugin) {
         this.sessionStoreService = sessionStoreService;
         this.subscribeStoreService = subscribeStoreService;
         this.messageIdService = messageIdService;
         this.retainMessageStoreService = retainMessageStoreService;
         this.dupPublishMessageStoreService = dupPublishMessageStoreService;
         this.internalCommunication = internalCommunication;
+        this.messagePersistencePlugin = messagePersistencePlugin;
     }
 
     /**
@@ -55,7 +65,8 @@ public class Publish {
      */
 
     public void processPublish(Channel channel, MqttPublishMessage msg) {
-        //System.out.println("publish:" + msg.toString());
+        //System.out.println("publish:" + msg.fixedHeader().isRetain());
+        messagePersistencePlugin.persistence(channel,msg);
         // QoS=0
         if (msg.fixedHeader().qosLevel() == MqttQoS.AT_MOST_ONCE) {
             byte[] messageBytes = new byte[msg.payload().readableBytes()];
@@ -113,7 +124,7 @@ public class Publish {
      */
     private void sendPublishMessage(String topic, MqttQoS mqttQoS, byte[] messageBytes, boolean retain, boolean dup) {
         try {
-            LOGGER.info("PUBLISH -  topic: {}, Qos: {}, message: {} ,retain{} , dup{}", topic, mqttQoS, new String(messageBytes, "utf-8"),retain,dup);
+            LOGGER.info("PUBLISH -  topic: {}, Qos: {}, message: {} ,retain{} , dup{}", topic, mqttQoS, new String(messageBytes, "utf-8"), retain, dup);
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("Unsupported encoding!");
         }

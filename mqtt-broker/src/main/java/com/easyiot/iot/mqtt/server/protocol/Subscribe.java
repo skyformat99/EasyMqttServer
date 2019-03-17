@@ -29,7 +29,7 @@ public class Subscribe {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Subscribe.class);
 
-    private ISubscribeStoreService subscribeStoreService;
+    private ISubscribeStoreService iSubscribeStoreService;
 
     private IMessageIdService messageIdService;
 
@@ -41,7 +41,7 @@ public class Subscribe {
                      IMessageIdService messageIdService,
                      IRetainMessageStoreService retainMessageStoreService,
                      ITopicStoreService iTopicStoreService) {
-        this.subscribeStoreService = subscribeStoreService;
+        this.iSubscribeStoreService = subscribeStoreService;
         this.messageIdService = messageIdService;
         this.retainMessageStoreService = retainMessageStoreService;
         this.iTopicStoreService = iTopicStoreService;
@@ -60,7 +60,7 @@ public class Subscribe {
                 String topicFilter = topicSubscription.topicName();
                 MqttQoS mqttQoS = topicSubscription.qualityOfService();
                 SubscribeStore subscribeStore = new SubscribeStore(clientId, topicFilter, mqttQoS.value());
-                subscribeStoreService.put(topicFilter, subscribeStore);
+                iSubscribeStoreService.put(topicFilter, subscribeStore);
                 mqttQoSList.add(mqttQoS.value());
                 /**
                  * 缓存TOPIC

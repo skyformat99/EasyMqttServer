@@ -28,10 +28,10 @@ public class AuthService implements IAuthService {
 //        return value.equals(password);
 //    }
 
-    @PostConstruct
-    public void init() {
-        privateKey = IoUtil.readObj(Objects.requireNonNull(AuthService.class.getClassLoader().getResourceAsStream("keystore/auth-private.key")));
-    }
+//    @PostConstruct
+//    public void init() {
+//        privateKey = IoUtil.readObj(Objects.requireNonNull(AuthService.class.getClassLoader().getResourceAsStream("keystore/auth-private.key")));
+//    }
 
     @Override
     public boolean authByUsernameAndPassword(String username, String password) {

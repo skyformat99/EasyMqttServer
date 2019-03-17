@@ -36,4 +36,6 @@ public interface ITopicStoreService {
      *
      */
     int count();
+
+    boolean containsChannelId(String channelId);
 }

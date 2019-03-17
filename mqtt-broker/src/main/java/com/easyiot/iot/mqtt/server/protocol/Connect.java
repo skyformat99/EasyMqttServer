@@ -16,6 +16,7 @@ import com.easyiot.iot.mqtt.server.common.message.IDupPublishMessageStoreService
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.session.SessionStore;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
+import com.easyiot.iot.mqtt.server.plugin.AuthPlugin;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.mqtt.*;
@@ -44,16 +45,24 @@ public class Connect {
 
     private IAuthService authService;
 
+    private AuthPlugin authPlugin;
+
     private IChannelStoreService iChannelStoreService;
 
 
-    public Connect(IChannelStoreService iChannelStoreService, ISessionStoreService sessionStoreService, ISubscribeStoreService subscribeStoreService, IDupPublishMessageStoreService dupPublishMessageStoreService, IDupPubRelMessageStoreService dupPubRelMessageStoreService, IAuthService authService) {
+    public Connect(IChannelStoreService iChannelStoreService,
+                   ISessionStoreService sessionStoreService,
+                   ISubscribeStoreService subscribeStoreService,
+                   IDupPublishMessageStoreService dupPublishMessageStoreService,
+                   IDupPubRelMessageStoreService dupPubRelMessageStoreService,
+                   IAuthService authService, AuthPlugin authPlugin) {
         this.iSessionStoreService = sessionStoreService;
         this.subscribeStoreService = subscribeStoreService;
         this.dupPublishMessageStoreService = dupPublishMessageStoreService;
         this.dupPubRelMessageStoreService = dupPubRelMessageStoreService;
         this.authService = authService;
         this.iChannelStoreService = iChannelStoreService;
+        this.authPlugin = authPlugin;
     }
 
     public void processConnect(Channel channel, MqttConnectMessage msg) {
@@ -72,12 +81,7 @@ public class Connect {
                 return;
             } else if (cause instanceof MqttIdentifierRejectedException) {
                 // 不合格的clientId
-                MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
-                        new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
-                        new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED, false), null);
-                channel.writeAndFlush(connAckMessage);
-                channel.close();
-                return;
+                closeChannel(channel);
             }
             channel.close();
             return;
@@ -89,11 +93,7 @@ public class Connect {
         if (StrUtil.isBlank(msg.payload().clientIdentifier())) {
             LOGGER.info("DISCONNECT 必须有ClientID - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
 
-            MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
-                    new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
-                    new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED, false), null);
-            channel.writeAndFlush(connAckMessage);
-            channel.close();
+            closeChannel(channel);
             return;
         }
         /**
@@ -222,6 +222,14 @@ public class Connect {
                 channel.writeAndFlush(pubRelMessage);
             });
         }
+    }
+
+    private void closeChannel(Channel channel) {
+        MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
+                new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
+                new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED, false), null);
+        channel.writeAndFlush(connAckMessage);
+        channel.close();
     }
 
 }
