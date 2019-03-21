@@ -6,7 +6,6 @@ package com.easyiot.iot.mqtt.server.protocol;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.easyiot.iot.mqtt.server.common.auth.IAuthService;
 import com.easyiot.iot.mqtt.server.common.client.ChannelStore;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.message.DupPubRelMessageStore;
@@ -43,8 +42,6 @@ public class Connect {
 
     private IDupPubRelMessageStoreService dupPubRelMessageStoreService;
 
-    private IAuthService authService;
-
     private AuthPlugin authPlugin;
 
     private IChannelStoreService iChannelStoreService;
@@ -55,12 +52,11 @@ public class Connect {
                    ISubscribeStoreService subscribeStoreService,
                    IDupPublishMessageStoreService dupPublishMessageStoreService,
                    IDupPubRelMessageStoreService dupPubRelMessageStoreService,
-                   IAuthService authService, AuthPlugin authPlugin) {
+                   AuthPlugin authPlugin) {
         this.iSessionStoreService = sessionStoreService;
         this.subscribeStoreService = subscribeStoreService;
         this.dupPublishMessageStoreService = dupPublishMessageStoreService;
         this.dupPubRelMessageStoreService = dupPubRelMessageStoreService;
-        this.authService = authService;
         this.iChannelStoreService = iChannelStoreService;
         this.authPlugin = authPlugin;
     }
@@ -103,7 +99,7 @@ public class Connect {
         // 用户名和密码验证, 这里要求客户端连接时必须提供用户名和密码, 不管是否设置用户名标志和密码标志为1, 此处没有参考标准协议实现
         String username = msg.payload().userName();
         String password = msg.payload().passwordInBytes() == null ? null : new String(msg.payload().passwordInBytes(), StandardCharsets.UTF_8);
-        if (!authService.authByUsernameAndPassword(username, password)) {
+        if (!authPlugin.authByUsernameAndPassword(username, password)) {
             LOGGER.info("DISCONNECT 认证失败 - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
 
             MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
@@ -113,6 +109,7 @@ public class Connect {
             channel.close();
             return;
         }
+        //TODO 这里后期会加入一个认证调用链 实现各种认证
 
 
         /**

@@ -1,6 +1,6 @@
 package com.easyiot.iot.mqtt.server.protocol;
 
-import com.easyiot.iot.mqtt.server.common.auth.IAuthService;
+import com.easyiot.iot.mqtt.server.plugin.auth.IAuthService;
 import com.easyiot.iot.mqtt.server.common.message.IDupPubRelMessageStoreService;
 import com.easyiot.iot.mqtt.server.common.message.IDupPublishMessageStoreService;
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;

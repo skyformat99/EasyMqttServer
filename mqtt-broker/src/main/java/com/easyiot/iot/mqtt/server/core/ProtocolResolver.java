@@ -4,7 +4,6 @@
 
 package com.easyiot.iot.mqtt.server.core;
 
-import com.easyiot.iot.mqtt.server.common.auth.IAuthService;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.client.ITopicStoreService;
 import com.easyiot.iot.mqtt.server.common.message.IDupPubRelMessageStoreService;
@@ -31,9 +30,6 @@ public class ProtocolResolver {
 
     @Autowired
     private ISubscribeStoreService subscribeStoreService;
-
-    @Autowired
-    private IAuthService authService;
 
     @Autowired
     private IMessageIdService messageIdService;
@@ -84,14 +80,14 @@ public class ProtocolResolver {
 
     Connect connect() {
         if (connect == null) {
-            connect = new Connect(iChannelStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService, authPlugin);
+            connect = new Connect(iChannelStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authPlugin);
         }
         return connect;
     }
 
     ConnAck connAck() {
         if (connAck == null) {
-            connAck = new ConnAck(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
+            connAck = new ConnAck(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authPlugin);
         }
         return connAck;
 
@@ -165,7 +161,7 @@ public class ProtocolResolver {
         return pubComp;
     }
 
-    ISessionStoreService getSessionStoreService() {
+    public ISessionStoreService getSessionStoreService() {
         return sessionStoreService;
     }
 
@@ -179,14 +175,6 @@ public class ProtocolResolver {
 
     public void setSubscribeStoreService(ISubscribeStoreService subscribeStoreService) {
         this.subscribeStoreService = subscribeStoreService;
-    }
-
-    public IAuthService getAuthService() {
-        return authService;
-    }
-
-    public void setAuthService(IAuthService authService) {
-        this.authService = authService;
     }
 
     public IMessageIdService getMessageIdService() {
@@ -227,6 +215,38 @@ public class ProtocolResolver {
 
     public void setInternalCommunication(InternalCommunication internalCommunication) {
         this.internalCommunication = internalCommunication;
+    }
+
+    public IChannelStoreService getiChannelStoreService() {
+        return iChannelStoreService;
+    }
+
+    public void setiChannelStoreService(IChannelStoreService iChannelStoreService) {
+        this.iChannelStoreService = iChannelStoreService;
+    }
+
+    public AuthPlugin getAuthPlugin() {
+        return authPlugin;
+    }
+
+    public void setAuthPlugin(AuthPlugin authPlugin) {
+        this.authPlugin = authPlugin;
+    }
+
+    public ITopicStoreService getTopicStoreService() {
+        return topicStoreService;
+    }
+
+    public void setTopicStoreService(ITopicStoreService topicStoreService) {
+        this.topicStoreService = topicStoreService;
+    }
+
+    public MessagePersistencePlugin getMessagePersistencePlugin() {
+        return messagePersistencePlugin;
+    }
+
+    public void setMessagePersistencePlugin(MessagePersistencePlugin messagePersistencePlugin) {
+        this.messagePersistencePlugin = messagePersistencePlugin;
     }
 
     public Connect getConnect() {

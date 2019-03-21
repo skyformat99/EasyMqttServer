@@ -2,7 +2,7 @@
  * Copyright (c) 2018, Mr.Wang (recallcode@aliyun.com) All rights reserved.
  */
 
-package com.easyiot.iot.mqtt.server.common.auth;
+package com.easyiot.iot.mqtt.server.plugin.auth;
 
 /**
  * 用户和密码认证服务接口

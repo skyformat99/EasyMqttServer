@@ -75,6 +75,7 @@ public class Subscribe {
 
              /**
              * SUBACK报文
+             * TODO 这里注意一下 本来要单独提出来一个类来实现的 后面再优化
              */
             MqttSubAckMessage subAckMessage = (MqttSubAckMessage) MqttMessageFactory.newMessage(
                     new MqttFixedHeader(MqttMessageType.SUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),

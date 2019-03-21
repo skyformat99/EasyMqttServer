@@ -158,6 +158,105 @@ interface BaseIgniteService<T> {
 }
 ```
 
+4.插件开发
+
+> 目前仅支持认证插件和消息处理插件，如有能力可自行扩展其他功能
+
+5.插件编写方式:
+
+1. 认证插件
+
+   > 认证插件需要重写：IAuthService的接口:
+
+   ```java
+   package com.easyiot.iot.mqtt.server.plugin
+   
+   import org.springframework.stereotype.Service
+   
+   @Service
+   class AuthPluginImp implements AuthPlugin{
+       @Override
+       boolean authByUsernameAndPassword(String username, String password) {
+       //这里可以加入数据库验证，如果成功返回true，失败返回false
+       //下面的都一样
+           return true
+       }
+   
+       @Override
+       boolean authByClientId(String clientId) {
+           return true
+       }
+   
+       @Override
+       boolean authByIp(String ipAddress) {
+           return true
+       }
+   
+   
+       @Override
+       def version() {
+           return "0.0.1"
+       }
+   
+       @Override
+       def name() {
+           return "Auth plugin"
+       }
+   
+   }
+   
+   ```
+
+   
+
+2. 消息处理插件
+
+   > 消息处理插件需要实现:MessagePersistencePlugin 接口，重写消息处理方法:
+
+   ```java
+   package com.easyiot.iot.mqtt.server.plugin
+   
+   import io.netty.channel.Channel
+   import io.netty.handler.codec.mqtt.MqttPublishMessage
+   import org.springframework.beans.factory.annotation.Autowired
+   import org.springframework.jdbc.core.JdbcTemplate
+   import org.springframework.stereotype.Service
+   
+   /**
+    * 消息持久化插件
+    * 实现 persistence 方法
+    * 比如：保存再MySql，或者MongoDB，都可以在这里实现
+    */
+   @Service
+   class MessagePersistencePluginImp implements MessagePersistencePlugin {
+       @Autowired
+       JdbcTemplate jdbcTemplate
+   
+       @Override
+       def persistence(Channel channel, MqttPublishMessage message) {
+           println("channel:" + channel.id() + " message:" + message.fixedHeader().isRetain())
+           if (message.fixedHeader().isRetain()) {
+               //保存 持久化 数据
+   
+           }
+   
+       }
+   
+   
+       @Override
+       def version() {
+           return "0.0.1"
+       }
+   
+       @Override
+       def name() {
+           return "Auth plugin"
+       }
+   
+   }
+   
+   ```
+
 ## 4.数据结构
 
 ##### 1.一个在线设备的描述
