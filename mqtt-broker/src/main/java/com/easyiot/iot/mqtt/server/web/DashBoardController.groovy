@@ -23,12 +23,6 @@ class DashBoardController {
     @Autowired
     BrokerProperties brokerProperties
 
-    @GetMapping("/")
-    Object index() {
-        return "Run Success!"
-
-    }
-
     @PostMapping("/login")
     Object login(@RequestBody JSONObject body) {
         if (body.getString("web_console_token").length() > 0 &&

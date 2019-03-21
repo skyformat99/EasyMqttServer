@@ -11,12 +11,19 @@ spring:
     driver-class-name: org.h2.Driver
     username: root
     password: root
+  # 模板
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+    mode: HTML
 
   jpa:
     database: db2
     hibernate:
       ddl-auto: create-drop
-#配置能远程访问
+  #配置能远程访问
   h2:
     console:
       settings:
@@ -78,17 +85,17 @@ info:
   head: head
   body: body
 management:
-        endpoints:
+  endpoints:
 
-                web:
-                        exposure:
-                                #加载所有的端点，默认只加载了info、health
-                                include: '*'
-        endpoint:
-                health:
-                        show-details: always
-                #可以关闭指定的端点
-                shutdown:
-                        enabled: false
-                sessions:
-                        enabled:
+    web:
+      exposure:
+        #加载所有的端点，默认只加载了info、health
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    #可以关闭指定的端点
+    shutdown:
+      enabled: false
+    sessions:
+      enabled:
