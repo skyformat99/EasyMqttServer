@@ -1,5 +1,17 @@
 # EasyJMqttForIot-V0.0.1 用户文档
+# JmqttAPI地址:
+```https://documenter.getpostman.com/view/1700622/S11Prbq1```
+# 常见错误
+## Linux和MacOS下编译失败
 
+```
+报错信息:Caused by: org.apache.ignite.IgniteCheckedException: Work directory does not exist and cannot be created: /work”
+```
+
+## 解决方案
+```
+使用权限sudo java -jar  mqtt-broker-0.0.1.jar 可执行；否则报”/work”相关错误。
+```
 ## 1.软件简介
 
 > EasyJMqttForIot是一个用Java实现的轻量级Mqtt服务器，核心技术用了高的性能的异步网络框架Netty，我们把它用在物联网场景中，而且为物联网场景量身定制多个插件，以便于实现更多功能。
@@ -14,7 +26,7 @@
 >
 > ```shell
 > mvn clear
-> mvn packge
+> mvn package
 > ```
 >
 > 然后会在target目录生成一个jar，windows下CMD（Linux直接执行）直接运行jar就可以:
