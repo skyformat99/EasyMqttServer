@@ -222,10 +222,15 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
         super.channelInactive(ctx);
         String channelId = ctx.channel().id().asLongText();
 
+        /**
+         * 删除和客户端有关的所有Topic
+         */
         LOGGER.info("channel closed:" + iChannelStoreService.getByChannelId(channelId));
         if (iTopicStoreService.containsChannelId(channelId)) {
-            iTopicStoreService.remove(channelId);
+
+            iTopicStoreService.removeByChannelId(channelId);
         }
+
         //删除Session
         if (iSessionStoreService.containsKey(channelId)) {
             iSessionStoreService.remove(iChannelStoreService.getByChannelId(channelId).getClientId());

@@ -1,8 +1,10 @@
 package com.easyiot.iot.mqtt.server.common.client;
 
 import org.apache.ignite.IgniteCache;
+import org.apache.ignite.cache.query.SqlFieldsQuery;
 import org.apache.ignite.cache.query.SqlQuery;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.cache.Cache;
@@ -15,39 +17,65 @@ import java.util.List;
  */
 @Service
 public class TopicStoreService implements ITopicStoreService {
-
     @Autowired
-    private IgniteCache<String, TopicStore> topicStoreCache;
+    private IgniteCache<Long, TopicStore> topicStoreCache;
 
     @Override
-    public void put(String channelId, TopicStore topicStore) {
-        topicStoreCache.put(channelId, topicStore);
-
+    public void save(TopicStore topicStore) {
+        topicStoreCache.put(topicStore.getId(), topicStore);
     }
 
     @Override
-    public TopicStore get(String channelId) {
-        return topicStoreCache.get(channelId);
+    public void remove(long id) {
+        topicStoreCache.remove(id);
     }
 
     @Override
-    public void remove(String channelId) {
-        topicStoreCache.remove(channelId);
+    public void update(TopicStore topicStore) {
+        topicStoreCache.put(topicStore.getId(), topicStore);
     }
 
-
     @Override
-    public List<Cache.Entry<String, TopicStore>> listAll(int page, int size) {
-        if (page < 0) {
-            page = 0;
-        }
-        if (size < 0) {
-            size = 0;
-        }
-        SqlQuery<String, TopicStore> query = new SqlQuery<>(TopicStore.class, String.format("select * from TopicStore limit %s ,%s", page, size));
-
+    public List<List<?>> getByClientId(String clientId) {
+        SqlFieldsQuery query = new SqlFieldsQuery("select * from TopicStore where clientId= ?").setArgs(clientId);
+        //SqlQuery<Long, TopicStore> query = new SqlQuery<Long, TopicStore>(TopicStore.class, "select * from TopicStore where clientId= ?").setArgs(clientId);
 
         return topicStoreCache.query(query).getAll();
+
+    }
+
+    @Override
+    public TopicStore getById(Long id) {
+        SqlFieldsQuery query = new SqlFieldsQuery("select * from TopicStore where id= ? ").setArgs(id);
+        query.setPageSize(1);
+        if (topicStoreCache.query(query).getAll().size() > 0) {
+            return (TopicStore) topicStoreCache.query(query).getAll().get(0);
+
+        } else {
+            return null;
+        }
+
+
+    }
+
+    @Override
+    public void removeByClientId(String clientId) {
+        topicStoreCache.query(new SqlFieldsQuery("DELETE FROM TopicStore where clientId= ?").setArgs(clientId));
+
+    }
+
+    @Override
+    public void removeByChannelId(String channelId) {
+        topicStoreCache.query(new SqlFieldsQuery("DELETE FROM TopicStore where channelId= ?").setArgs(channelId));
+
+    }
+
+
+    @Override
+    public List<Cache.Entry<Long, TopicStore>> listAll(Pageable pageable) {
+        SqlQuery<Long, TopicStore> query = new SqlQuery<Long, TopicStore>(TopicStore.class, "select * from TopicStore limit ? ,?").setArgs(pageable.getPageNumber(), pageable.getPageSize());
+        return topicStoreCache.query(query).getAll();
+
     }
 
     @Override
@@ -57,6 +85,10 @@ public class TopicStoreService implements ITopicStoreService {
 
     @Override
     public boolean containsChannelId(String channelId) {
-        return topicStoreCache.containsKey(channelId);
+        SqlQuery<Long, TopicStore> query = new SqlQuery<Long, TopicStore>(TopicStore.class, "select * from TopicStore  where channelId=?").setArgs(channelId);
+
+        return topicStoreCache.query(query).getAll().size() > 0;
+
     }
+
 }

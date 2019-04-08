@@ -63,11 +63,11 @@ public class Subscribe {
                 iSubscribeStoreService.put(topicFilter, subscribeStore);
                 mqttQoSList.add(mqttQoS.value());
                 /**
-                 * 缓存TOPIC
+                 *  第一步：客户端上线的时候, 缓存TOPIC
                  */
-                TopicStore topicStore = new TopicStore(clientId, topicFilter, mqttQoS.value());
+                TopicStore topicStore = new TopicStore(clientId, channel.id().asLongText(), topicFilter, mqttQoS.value());
 
-                iTopicStoreService.put(channel.id().asLongText(), topicStore);
+                iTopicStoreService.save(topicStore);
 
                 LOGGER.info("SUBSCRIBE - clientId: {}, topFilter: {}, QoS: {}", clientId, topicFilter, mqttQoS.value());
             });

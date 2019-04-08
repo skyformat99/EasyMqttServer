@@ -9,6 +9,7 @@ import com.easyiot.iot.mqtt.server.plugin.PluginLoader
 import org.apache.ignite.Ignite
 import org.apache.ignite.cluster.ClusterNode
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.web.bind.annotation.*
 
 @CrossOrigin
@@ -41,13 +42,13 @@ class DashBoardController {
 
     @GetMapping("/topics")
     Object topics(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-        return [state: 1, "message": "Success!", total: topicStoreService.count(), data: topicStoreService.listAll(page, size)]
+        return [state: 1, "message": "Success!", total: topicStoreService.count(), data: topicStoreService.listAll(PageRequest.of(page, size))]
 
     }
 
-    @GetMapping("/searchTopicByChannelId")
-    Object searchTopicByChannelId(@RequestParam String channelId) {
-        return [state: 1, "message": "Success!", total: topicStoreService.count(), data: topicStoreService.get(channelId)]
+    @GetMapping("/searchTopicByClientId")
+    Object searchTopicByChannelId(@RequestParam String clientId) {
+        return [state: 1, "message": "Success!", total: topicStoreService.count(), data: topicStoreService.getByClientId(clientId)]
     }
 
 
