@@ -17,7 +17,7 @@ public interface ITopicStoreService {
     void update(TopicStore topicStore);
 
 
-    List<List<?>> getByClientId(String clientId);
+    List<Cache.Entry<Long, TopicStore>> getByClientId(String clientId);
 
     TopicStore getById(Long id);
 

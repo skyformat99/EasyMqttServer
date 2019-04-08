@@ -19,7 +19,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
     /**
      * 不需要登录拦截的url:登录注册和验证码
      */
-    private final String[] passPaths = {"/dashboard/login/**", "/"};
+    private final String[] passPaths = {"/dashboard/login/**", "/static/**"};
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

@@ -36,9 +36,8 @@ public class TopicStoreService implements ITopicStoreService {
     }
 
     @Override
-    public List<List<?>> getByClientId(String clientId) {
-        SqlFieldsQuery query = new SqlFieldsQuery("select * from TopicStore where clientId= ?").setArgs(clientId);
-        //SqlQuery<Long, TopicStore> query = new SqlQuery<Long, TopicStore>(TopicStore.class, "select * from TopicStore where clientId= ?").setArgs(clientId);
+    public List<Cache.Entry<Long, TopicStore>> getByClientId(String clientId) {
+        SqlQuery<Long, TopicStore> query = new SqlQuery<Long, TopicStore>(TopicStore.class, "select * from TopicStore where clientId= ? ").setArgs(clientId);
 
         return topicStoreCache.query(query).getAll();
 
@@ -46,7 +45,7 @@ public class TopicStoreService implements ITopicStoreService {
 
     @Override
     public TopicStore getById(Long id) {
-        SqlFieldsQuery query = new SqlFieldsQuery("select * from TopicStore where id= ? ").setArgs(id);
+        SqlQuery<Long, TopicStore> query = new SqlQuery<Long, TopicStore>(TopicStore.class, "select * from TopicStore where id= ? ").setArgs(id);
         query.setPageSize(1);
         if (topicStoreCache.query(query).getAll().size() > 0) {
             return (TopicStore) topicStoreCache.query(query).getAll().get(0);

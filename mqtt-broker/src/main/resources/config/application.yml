@@ -3,7 +3,7 @@ server:
   port: 2580
 spring:
   profiles:
-    active: dev
+    active: devs
 
   # H2数据库用来保存一些本地的数据
   datasource:
