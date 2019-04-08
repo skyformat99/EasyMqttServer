@@ -12,15 +12,16 @@ public interface IAuthService {
     /**
      * 验证用户名和密码是否正确
      */
-    boolean authByUsernameAndPassword(String username, String password);
+      boolean authByUsernameAndPassword(String username, String password);
 
     /**
      * 验证ClientId是否存在
      */
-    boolean authByClientId(String clientId);
+      boolean authByClientId(String clientId);
+
     /**
      * 根据IP验证
      */
-    boolean authByIp(String ipAddress);
+      boolean authByIp(String ipAddress);
 
 }

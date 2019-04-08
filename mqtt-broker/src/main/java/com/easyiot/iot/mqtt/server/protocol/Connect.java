@@ -15,7 +15,7 @@ import com.easyiot.iot.mqtt.server.common.message.IDupPublishMessageStoreService
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.session.SessionStore;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
-import com.easyiot.iot.mqtt.server.plugin.AuthPlugin;
+import com.easyiot.iot.mqtt.server.plugin.auth.AuthPlugin;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.mqtt.*;

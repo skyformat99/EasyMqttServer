@@ -10,7 +10,7 @@ import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
 import com.easyiot.iot.mqtt.server.common.subscribe.SubscribeStore;
 import com.easyiot.iot.mqtt.server.internal.InternalCommunication;
 import com.easyiot.iot.mqtt.server.internal.InternalMessage;
-import com.easyiot.iot.mqtt.server.plugin.MessagePersistencePlugin;
+import com.easyiot.iot.mqtt.server.plugin.auth.MessagePersistencePlugin;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.mqtt.*;

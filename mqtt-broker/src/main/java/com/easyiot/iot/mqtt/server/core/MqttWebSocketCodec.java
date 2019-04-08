@@ -25,4 +25,5 @@ public class MqttWebSocketCodec extends MessageToMessageCodec<BinaryWebSocketFra
 	protected void decode(ChannelHandlerContext ctx, BinaryWebSocketFrame msg, List<Object> out) throws Exception {
 		out.add(msg.retain().content());
 	}
+
 }

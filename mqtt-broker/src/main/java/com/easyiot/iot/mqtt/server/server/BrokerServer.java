@@ -11,6 +11,7 @@ import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
 import com.easyiot.iot.mqtt.server.config.BrokerProperties;
 import com.easyiot.iot.mqtt.server.core.BrokerHandler;
 import com.easyiot.iot.mqtt.server.core.MqttWebSocketCodec;
+import com.easyiot.iot.mqtt.server.core.MqttWebSocketHandler;
 import com.easyiot.iot.mqtt.server.core.ProtocolResolver;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -184,12 +185,17 @@ public class BrokerServer {
                         channelPipeline.addLast("mqttWebSocket", new MqttWebSocketCodec());
                         channelPipeline.addLast("decoder", new MqttDecoder());
                         channelPipeline.addLast("encoder", MqttEncoder.INSTANCE);
-                        channelPipeline.addLast("broker", new BrokerHandler(protocolProcess, iChannelStoreService, iSessionStoreService, iTopicStoreService));
+                        channelPipeline.addLast("broker", new MqttWebSocketHandler(protocolProcess, iChannelStoreService, iSessionStoreService, iTopicStoreService));
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, brokerProperties.getSoBacklog())
                 .childOption(ChannelOption.SO_KEEPALIVE, brokerProperties.isSoKeepAlive());
-        webSocketChannel = serverBootstrap.bind(brokerProperties.getWebSocketSslPort()).sync().channel();
+        if (brokerProperties.isUseWebsocketSSL()) {
+            webSocketChannel = serverBootstrap.bind(brokerProperties.getWebSocketSslPort()).sync().channel();
+        } else {
+            webSocketChannel = serverBootstrap.bind(brokerProperties.getWebSocketPort()).sync().channel();
+
+        }
 
 
     }
