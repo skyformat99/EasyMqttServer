@@ -5,6 +5,7 @@
 package com.easyiot.iot.mqtt.server.protocol;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.easyiot.iot.mqtt.server.common.client.ChannelStore;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
@@ -166,14 +167,16 @@ public class Connect {
             channel.pipeline().addFirst("idle", new IdleStateHandler(0, 0, Math.round(msg.variableHeader().keepAliveTimeSeconds() * 1.5f)));
         }
         /**
-         * 至此存储会话信息及返回接受客户端连接
+         * 连接前最后一步：至此存储会话信息及返回接受客户端连接
          */
         iSessionStoreService.put(msg.payload().clientIdentifier(), sessionStore);
+
+
         /**
          * 将clientId存储到channel的map中
          */
         channel.attr(AttributeKey.valueOf("clientId")).set(msg.payload().clientIdentifier());
-        Boolean sessionPresent = iSessionStoreService.containsKey(msg.payload().clientIdentifier()) && !msg.variableHeader().isCleanSession();
+        boolean sessionPresent = iSessionStoreService.containsKey(msg.payload().clientIdentifier()) && !msg.variableHeader().isCleanSession();
         MqttConnAckMessage okResp = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_ACCEPTED, sessionPresent), null);
@@ -199,7 +202,14 @@ public class Connect {
         channelStore.setWillMessageToJson(willToJson);
         channelStore.setChannelToJson(channelToJson);
         iChannelStoreService.putChannelId(channel.id().asLongText(), channelStore);
-
+        /**
+         *  然后开始 给特殊通道发送客户端上线的消息
+         *   MqttFixedHeader(MqttMessageType messageType, boolean isDup, MqttQoS qosLevel, boolean isRetain, int remainingLength)
+         */
+        MqttPublishMessage pubAckMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                new MqttFixedHeader(MqttMessageType.PUBLISH, false, MqttQoS.AT_LEAST_ONCE, false, 0),
+                new MqttPublishVariableHeader("/$SYS/CLIENT/CONNECT", 1), Unpooled.buffer().writeBytes(JSON.toJSONString(channelStore).getBytes()));
+        channel.writeAndFlush(pubAckMessage);
         /**
          * 如果cleanSession为0, 需要重发同一clientId存储的未完成的QoS1和QoS2的DUP消息
          */

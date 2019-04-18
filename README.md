@@ -303,4 +303,11 @@ interface BaseIgniteService<T> {
 
 > 重点:这里有个设计思路：根据Netty的设计哲学，每一个连接进来的客户端，Netty都认为它是一个Channel，并且给这个Channel一个ID，从而实现标识。EasyMqttServer在设计的过程中参考了这种哲学吗，用ChannelId来表示每一个链接进来的客户端。
 
+## 特色功能：监控客户端上线下线
+> 只需要监控这两个Topic就可以了（注意：当开启认证权限的时候，客户端必须要有这两个客户端的订阅权限才可以接收消息）:
+```
+/$SYS/CLIENT/CONNECT:上线
+/$SYS/CLIENT/DISCONNECT：下线
+```
+
 # 如果有问题或者发现Bug，请及时反馈:751957846@qq.com

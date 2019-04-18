@@ -4,10 +4,12 @@
 
 package com.easyiot.iot.mqtt.server.core;
 
+import com.alibaba.fastjson.JSON;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.client.ITopicStoreService;
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.session.SessionStore;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
@@ -238,6 +240,16 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
         }
         //删除在线状态
         if (iChannelStoreService.containsChannelId(channelId)) {
+            ;
+            /**
+             *  然后开始 给特殊通道发送客户端掉线的消息
+             *   MqttFixedHeader(MqttMessageType messageType, boolean isDup, MqttQoS qosLevel, boolean isRetain, int remainingLength)
+             */
+
+            MqttPublishMessage pubAckMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                    new MqttFixedHeader(MqttMessageType.PUBLISH, false, MqttQoS.AT_LEAST_ONCE, false, 0),
+                    new MqttPublishVariableHeader("/$SYS/CLIENT/DISCONNECT", 1), Unpooled.buffer().writeBytes(JSON.toJSONString(iChannelStoreService.getByChannelId(channelId)).getBytes()));
+            ctx.channel().writeAndFlush(pubAckMessage);
             iChannelStoreService.removeChannelId(channelId);
 
         }
