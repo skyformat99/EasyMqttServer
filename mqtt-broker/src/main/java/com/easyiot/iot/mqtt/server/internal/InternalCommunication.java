@@ -11,22 +11,27 @@ import com.easyiot.iot.mqtt.server.common.subscribe.SubscribeStore;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.mqtt.*;
 import org.apache.ignite.IgniteMessaging;
+import org.apache.ignite.cluster.ClusterNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
- * 内部通信, 基于发布-订阅范式
+ * 内部通信, 基于发布-订阅范式，主要用来集群通信
  */
 @Component
 public class InternalCommunication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InternalCommunication.class);
 
+    /**
+     * 集群通信用的topic
+     */
     private final String internalTopic = "internal-communication-topic";
 
     @Autowired
@@ -40,6 +45,8 @@ public class InternalCommunication {
 
     @Autowired
     private IMessageIdService messageIdService;
+    @Value("${spring.mqtt.broker.id}")
+    private String instanceName;
 
     @PostConstruct
     private void internalListen() {
@@ -50,8 +57,18 @@ public class InternalCommunication {
         });
     }
 
+    /**
+     * 转发集群内的消息
+     *
+     * @param internalMessage
+     */
+
     public void internalSend(InternalMessage internalMessage) {
         if (igniteMessaging.clusterGroup().nodes() != null && igniteMessaging.clusterGroup().nodes().size() > 0) {
+            for (ClusterNode clusterNode : igniteMessaging.clusterGroup().nodes()) {
+                System.out.println("这里用来测试是否自己的节点也收到消息了：" + clusterNode.toString());
+            }
+
             igniteMessaging.send(internalTopic, internalMessage);
         }
     }
@@ -68,7 +85,7 @@ public class InternalCommunication {
         });
     }
 
-    public void sendByQOS(String topic, MqttQoS mqttQoS, byte[] messageBytes, boolean retain, boolean dup, SubscribeStore subscribeStore, Logger logger, ISessionStoreService sessionStoreService) {
+    private void sendByQOS(String topic, MqttQoS mqttQoS, byte[] messageBytes, boolean retain, boolean dup, SubscribeStore subscribeStore, Logger logger, ISessionStoreService sessionStoreService) {
         MqttQoS respQoS = mqttQoS.value() > subscribeStore.getMqttQoS() ? MqttQoS.valueOf(subscribeStore.getMqttQoS()) : mqttQoS;
         //QOS 0 没有MessageID
         if (respQoS == MqttQoS.AT_MOST_ONCE) {
