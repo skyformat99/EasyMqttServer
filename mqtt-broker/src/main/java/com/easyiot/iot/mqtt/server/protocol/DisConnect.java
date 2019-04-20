@@ -4,14 +4,16 @@
 
 package com.easyiot.iot.mqtt.server.protocol;
 
+import com.alibaba.fastjson.JSON;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.message.IDupPubRelMessageStoreService;
 import com.easyiot.iot.mqtt.server.common.message.IDupPublishMessageStoreService;
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.session.SessionStore;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.mqtt.MqttMessage;
+import io.netty.handler.codec.mqtt.*;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +69,16 @@ public class DisConnect {
             //删除在线统计
             iChannelStoreService.removeChannelId(channelId);
         }
+        /**
+         *  然后开始 给特殊通道发送客户端掉线的消息
+         *   MqttFixedHeader(MqttMessageType messageType, boolean isDup, MqttQoS qosLevel, boolean isRetain, int remainingLength)
+         */
+
+        MqttPublishMessage pubAckMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                new MqttFixedHeader(MqttMessageType.PUBLISH, false, MqttQoS.AT_LEAST_ONCE, false, 0),
+                new MqttPublishVariableHeader("/$SYS/CLIENT/DISCONNECT", 1), Unpooled.buffer().writeBytes(JSON.toJSONString(iChannelStoreService.getByChannelId(channelId)).getBytes()));
+        channel.writeAndFlush(pubAckMessage);
+        iChannelStoreService.removeChannelId(channelId);
 
 
         /**

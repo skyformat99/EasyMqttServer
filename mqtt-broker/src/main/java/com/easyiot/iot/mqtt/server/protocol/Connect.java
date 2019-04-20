@@ -5,8 +5,8 @@
 package com.easyiot.iot.mqtt.server.protocol;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.easyiot.iot.mqtt.server.common.auth.IAuthService;
 import com.easyiot.iot.mqtt.server.common.client.ChannelStore;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.message.DupPubRelMessageStore;
@@ -16,6 +16,7 @@ import com.easyiot.iot.mqtt.server.common.message.IDupPublishMessageStoreService
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.session.SessionStore;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
+import com.easyiot.iot.mqtt.server.plugin.auth.AuthPlugin;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.mqtt.*;
@@ -42,18 +43,23 @@ public class Connect {
 
     private IDupPubRelMessageStoreService dupPubRelMessageStoreService;
 
-    private IAuthService authService;
+    private AuthPlugin authPlugin;
 
     private IChannelStoreService iChannelStoreService;
 
 
-    public Connect(IChannelStoreService iChannelStoreService, ISessionStoreService sessionStoreService, ISubscribeStoreService subscribeStoreService, IDupPublishMessageStoreService dupPublishMessageStoreService, IDupPubRelMessageStoreService dupPubRelMessageStoreService, IAuthService authService) {
+    public Connect(IChannelStoreService iChannelStoreService,
+                   ISessionStoreService sessionStoreService,
+                   ISubscribeStoreService subscribeStoreService,
+                   IDupPublishMessageStoreService dupPublishMessageStoreService,
+                   IDupPubRelMessageStoreService dupPubRelMessageStoreService,
+                   AuthPlugin authPlugin) {
         this.iSessionStoreService = sessionStoreService;
         this.subscribeStoreService = subscribeStoreService;
         this.dupPublishMessageStoreService = dupPublishMessageStoreService;
         this.dupPubRelMessageStoreService = dupPubRelMessageStoreService;
-        this.authService = authService;
         this.iChannelStoreService = iChannelStoreService;
+        this.authPlugin = authPlugin;
     }
 
     public void processConnect(Channel channel, MqttConnectMessage msg) {
@@ -72,12 +78,7 @@ public class Connect {
                 return;
             } else if (cause instanceof MqttIdentifierRejectedException) {
                 // 不合格的clientId
-                MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
-                        new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
-                        new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED, false), null);
-                channel.writeAndFlush(connAckMessage);
-                channel.close();
-                return;
+                closeChannel(channel);
             }
             channel.close();
             return;
@@ -89,11 +90,7 @@ public class Connect {
         if (StrUtil.isBlank(msg.payload().clientIdentifier())) {
             LOGGER.info("DISCONNECT 必须有ClientID - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
 
-            MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
-                    new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
-                    new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED, false), null);
-            channel.writeAndFlush(connAckMessage);
-            channel.close();
+            closeChannel(channel);
             return;
         }
         /**
@@ -103,7 +100,7 @@ public class Connect {
         // 用户名和密码验证, 这里要求客户端连接时必须提供用户名和密码, 不管是否设置用户名标志和密码标志为1, 此处没有参考标准协议实现
         String username = msg.payload().userName();
         String password = msg.payload().passwordInBytes() == null ? null : new String(msg.payload().passwordInBytes(), StandardCharsets.UTF_8);
-        if (!authService.authByUsernameAndPassword(username, password)) {
+        if (!authPlugin.authByUsernameAndPassword(username, password)) {
             LOGGER.info("DISCONNECT 认证失败 - clientId: {}, cleanSession: {}", msg.payload().clientIdentifier(), msg.variableHeader().isCleanSession());
 
             MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
@@ -113,6 +110,7 @@ public class Connect {
             channel.close();
             return;
         }
+        //TODO 这里后期会加入一个认证调用链 实现各种认证
 
 
         /**
@@ -169,14 +167,16 @@ public class Connect {
             channel.pipeline().addFirst("idle", new IdleStateHandler(0, 0, Math.round(msg.variableHeader().keepAliveTimeSeconds() * 1.5f)));
         }
         /**
-         * 至此存储会话信息及返回接受客户端连接
+         * 连接前最后一步：至此存储会话信息及返回接受客户端连接
          */
         iSessionStoreService.put(msg.payload().clientIdentifier(), sessionStore);
+
+
         /**
          * 将clientId存储到channel的map中
          */
         channel.attr(AttributeKey.valueOf("clientId")).set(msg.payload().clientIdentifier());
-        Boolean sessionPresent = iSessionStoreService.containsKey(msg.payload().clientIdentifier()) && !msg.variableHeader().isCleanSession();
+        boolean sessionPresent = iSessionStoreService.containsKey(msg.payload().clientIdentifier()) && !msg.variableHeader().isCleanSession();
         MqttConnAckMessage okResp = (MqttConnAckMessage) MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_ACCEPTED, sessionPresent), null);
@@ -202,7 +202,14 @@ public class Connect {
         channelStore.setWillMessageToJson(willToJson);
         channelStore.setChannelToJson(channelToJson);
         iChannelStoreService.putChannelId(channel.id().asLongText(), channelStore);
-
+        /**
+         *  然后开始 给特殊通道发送客户端上线的消息
+         *   MqttFixedHeader(MqttMessageType messageType, boolean isDup, MqttQoS qosLevel, boolean isRetain, int remainingLength)
+         */
+        MqttPublishMessage pubAckMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                new MqttFixedHeader(MqttMessageType.PUBLISH, false, MqttQoS.AT_LEAST_ONCE, false, 0),
+                new MqttPublishVariableHeader("/$SYS/CLIENT/CONNECT", 1), Unpooled.buffer().writeBytes(JSON.toJSONString(channelStore).getBytes()));
+        channel.writeAndFlush(pubAckMessage);
         /**
          * 如果cleanSession为0, 需要重发同一clientId存储的未完成的QoS1和QoS2的DUP消息
          */
@@ -222,6 +229,14 @@ public class Connect {
                 channel.writeAndFlush(pubRelMessage);
             });
         }
+    }
+
+    private void closeChannel(Channel channel) {
+        MqttConnAckMessage connAckMessage = (MqttConnAckMessage) MqttMessageFactory.newMessage(
+                new MqttFixedHeader(MqttMessageType.CONNACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
+                new MqttConnAckVariableHeader(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED, false), null);
+        channel.writeAndFlush(connAckMessage);
+        channel.close();
     }
 
 }

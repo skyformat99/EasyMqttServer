@@ -4,7 +4,6 @@
 
 package com.easyiot.iot.mqtt.server.core;
 
-import com.easyiot.iot.mqtt.server.common.auth.IAuthService;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.client.ITopicStoreService;
 import com.easyiot.iot.mqtt.server.common.message.IDupPubRelMessageStoreService;
@@ -14,6 +13,8 @@ import com.easyiot.iot.mqtt.server.common.message.IRetainMessageStoreService;
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
 import com.easyiot.iot.mqtt.server.internal.InternalCommunication;
+import com.easyiot.iot.mqtt.server.plugin.auth.AuthPlugin;
+import com.easyiot.iot.mqtt.server.plugin.auth.MessagePersistencePlugin;
 import com.easyiot.iot.mqtt.server.protocol.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,9 +30,6 @@ public class ProtocolResolver {
 
     @Autowired
     private ISubscribeStoreService subscribeStoreService;
-
-    @Autowired
-    private IAuthService authService;
 
     @Autowired
     private IMessageIdService messageIdService;
@@ -51,8 +49,13 @@ public class ProtocolResolver {
     IChannelStoreService iChannelStoreService;
 
     @Autowired
+    AuthPlugin authPlugin;
+
+    @Autowired
     private ITopicStoreService topicStoreService;
 
+    @Autowired
+    private MessagePersistencePlugin messagePersistencePlugin;
     private Connect connect;
 
     private ConnAck connAck;
@@ -75,16 +78,16 @@ public class ProtocolResolver {
 
     private PubComp pubComp;
 
-    public Connect connect() {
+    Connect connect() {
         if (connect == null) {
-            connect = new Connect(iChannelStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
+            connect = new Connect(iChannelStoreService, sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authPlugin);
         }
         return connect;
     }
 
-    public ConnAck connAck() {
+    ConnAck connAck() {
         if (connAck == null) {
-            connAck = new ConnAck(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authService);
+            connAck = new ConnAck(sessionStoreService, subscribeStoreService, dupPublishMessageStoreService, dupPubRelMessageStoreService, authPlugin);
         }
         return connAck;
 
@@ -97,21 +100,21 @@ public class ProtocolResolver {
         return subscribe;
     }
 
-    public UnSubscribe unSubscribe() {
+    UnSubscribe unSubscribe() {
         if (unSubscribe == null) {
             unSubscribe = new UnSubscribe(subscribeStoreService, topicStoreService);
         }
         return unSubscribe;
     }
 
-    public Publish publish() {
+    Publish publish() {
         if (publish == null) {
-            publish = new Publish(sessionStoreService, subscribeStoreService, messageIdService, messageStoreService, dupPublishMessageStoreService, internalCommunication);
+            publish = new Publish(sessionStoreService, subscribeStoreService, messageIdService, messageStoreService, dupPublishMessageStoreService, internalCommunication, messagePersistencePlugin);
         }
         return publish;
     }
 
-    public DisConnect disConnect() {
+    DisConnect disConnect() {
         if (disConnect == null) {
             disConnect = new DisConnect(sessionStoreService,
                     subscribeStoreService,
@@ -123,35 +126,35 @@ public class ProtocolResolver {
         return disConnect;
     }
 
-    public PingReq pingReq() {
+    PingReq pingReq() {
         if (pingReq == null) {
             pingReq = new PingReq();
         }
         return pingReq;
     }
 
-    public PubRel pubRel() {
+    PubRel pubRel() {
         if (pubRel == null) {
             pubRel = new PubRel();
         }
         return pubRel;
     }
 
-    public PubAck pubAck() {
+    PubAck pubAck() {
         if (pubAck == null) {
             pubAck = new PubAck(messageIdService, dupPublishMessageStoreService);
         }
         return pubAck;
     }
 
-    public PubRec pubRec() {
+    PubRec pubRec() {
         if (pubRec == null) {
             pubRec = new PubRec(dupPublishMessageStoreService, dupPubRelMessageStoreService);
         }
         return pubRec;
     }
 
-    public PubComp pubComp() {
+    PubComp pubComp() {
         if (pubComp == null) {
             pubComp = new PubComp(messageIdService, dupPubRelMessageStoreService);
         }
@@ -172,14 +175,6 @@ public class ProtocolResolver {
 
     public void setSubscribeStoreService(ISubscribeStoreService subscribeStoreService) {
         this.subscribeStoreService = subscribeStoreService;
-    }
-
-    public IAuthService getAuthService() {
-        return authService;
-    }
-
-    public void setAuthService(IAuthService authService) {
-        this.authService = authService;
     }
 
     public IMessageIdService getMessageIdService() {
@@ -220,6 +215,38 @@ public class ProtocolResolver {
 
     public void setInternalCommunication(InternalCommunication internalCommunication) {
         this.internalCommunication = internalCommunication;
+    }
+
+    public IChannelStoreService getiChannelStoreService() {
+        return iChannelStoreService;
+    }
+
+    public void setiChannelStoreService(IChannelStoreService iChannelStoreService) {
+        this.iChannelStoreService = iChannelStoreService;
+    }
+
+    public AuthPlugin getAuthPlugin() {
+        return authPlugin;
+    }
+
+    public void setAuthPlugin(AuthPlugin authPlugin) {
+        this.authPlugin = authPlugin;
+    }
+
+    public ITopicStoreService getTopicStoreService() {
+        return topicStoreService;
+    }
+
+    public void setTopicStoreService(ITopicStoreService topicStoreService) {
+        this.topicStoreService = topicStoreService;
+    }
+
+    public MessagePersistencePlugin getMessagePersistencePlugin() {
+        return messagePersistencePlugin;
+    }
+
+    public void setMessagePersistencePlugin(MessagePersistencePlugin messagePersistencePlugin) {
+        this.messagePersistencePlugin = messagePersistencePlugin;
     }
 
     public Connect getConnect() {

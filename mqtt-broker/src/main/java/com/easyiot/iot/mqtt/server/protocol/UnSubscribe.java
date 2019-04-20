@@ -39,7 +39,8 @@ public class UnSubscribe {
         /**
          *删除订阅的Topic缓存
          */
-        iTopicStoreService.remove(channel.id().asLongText());
+        iTopicStoreService.removeByClientId(clientId);
+
         MqttUnsubAckMessage unsubAckMessage = (MqttUnsubAckMessage) MqttMessageFactory.newMessage(
                 new MqttFixedHeader(MqttMessageType.UNSUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),
                 MqttMessageIdVariableHeader.from(msg.variableHeader().messageId()), null);

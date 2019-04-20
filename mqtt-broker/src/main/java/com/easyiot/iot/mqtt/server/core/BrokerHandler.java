@@ -2,15 +2,14 @@
  * Copyright (c) 2018, Mr.Wang (recallcode@aliyun.com) All rights reserved.
  */
 
-package com.easyiot.iot.mqtt.server.handler;
+package com.easyiot.iot.mqtt.server.core;
 
+import com.alibaba.fastjson.JSON;
 import com.easyiot.iot.mqtt.server.common.client.IChannelStoreService;
 import com.easyiot.iot.mqtt.server.common.client.ITopicStoreService;
 import com.easyiot.iot.mqtt.server.common.session.ISessionStoreService;
 import com.easyiot.iot.mqtt.server.common.session.SessionStore;
-import com.easyiot.iot.mqtt.server.common.subscribe.ISubscribeStoreService;
-import com.easyiot.iot.mqtt.server.core.MessageReceiveHandler;
-import com.easyiot.iot.mqtt.server.core.ProtocolResolver;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.*;
@@ -35,7 +34,6 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
 
     private IChannelStoreService iChannelStoreService;
     private ISessionStoreService iSessionStoreService;
-    private ISubscribeStoreService iSubscribeStoreService;
     private ITopicStoreService iTopicStoreService;
 
 
@@ -43,12 +41,10 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
     public BrokerHandler(ProtocolResolver protocolProcess,
                          IChannelStoreService iChannelStoreService,
                          ISessionStoreService iSessionStoreService,
-                         ISubscribeStoreService iSubscribeStoreService,
                          ITopicStoreService iTopicStoreService) {
         this.protocolProcess = protocolProcess;
         this.iChannelStoreService = iChannelStoreService;
         this.iSessionStoreService = iSessionStoreService;
-        this.iSubscribeStoreService = iSubscribeStoreService;
         this.iTopicStoreService = iTopicStoreService;
     }
 
@@ -206,36 +202,57 @@ public class BrokerHandler extends MessageReceiveHandler<MqttMessage> {
         }
     }
 
+    /**
+     * 关于下面的两个函数解释
+     * 首先当一个channel关闭的时候通知Netty channel管理器，然后再去removed
+     * 理解为先断开网络然后再删除
+     *
+     * @param ctx
+     * @throws Exception
+     */
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        super.handlerRemoved(ctx);
+        LOGGER.info("channel {} removed:" + ctx.channel().id());
 
-//    @Override
-//    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-//        super.handlerRemoved(ctx);
-//        System.out.println("handlerRemoved");
-//        String channelId = ctx.channel().id().asLongText();
-//        iTopicStoreService.remove(channelId);
-//
-//        if (iChannelStoreStoreService.containsChannelId(channelId)) {
-//            System.out.println("设备异常掉线:" + iChannelStoreStoreService.getByChannelId(channelId));
-//            //删除Session
-//            iSessionStoreService.remove(iChannelStoreStoreService.getByChannelId(channelId).getClientId());
-//            //删除在线统计
-//            iChannelStoreStoreService.removeChannelId(channelId);
-//        }
-//
-//    }
+
+    }
 
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
         String channelId = ctx.channel().id().asLongText();
-        iTopicStoreService.remove(channelId);
-        if (iChannelStoreService.containsChannelId(channelId)) {
-            LOGGER.info("设备异常掉线:" + iChannelStoreService.getByChannelId(channelId));
-            //删除Session
+
+        /**
+         * 删除和客户端有关的所有Topic
+         */
+        LOGGER.info("channel closed:" + iChannelStoreService.getByChannelId(channelId));
+        if (iTopicStoreService.containsChannelId(channelId)) {
+
+            iTopicStoreService.removeByChannelId(channelId);
+        }
+
+        //删除Session
+        if (iSessionStoreService.containsKey(channelId)) {
             iSessionStoreService.remove(iChannelStoreService.getByChannelId(channelId).getClientId());
-            //删除在线统计
+
+        }
+        //删除在线状态
+        if (iChannelStoreService.containsChannelId(channelId)) {
+            ;
+            /**
+             *  然后开始 给特殊通道发送客户端掉线的消息
+             *   MqttFixedHeader(MqttMessageType messageType, boolean isDup, MqttQoS qosLevel, boolean isRetain, int remainingLength)
+             */
+
+            MqttPublishMessage pubAckMessage = (MqttPublishMessage) MqttMessageFactory.newMessage(
+                    new MqttFixedHeader(MqttMessageType.PUBLISH, false, MqttQoS.AT_LEAST_ONCE, false, 0),
+                    new MqttPublishVariableHeader("/$SYS/CLIENT/DISCONNECT", 1), Unpooled.buffer().writeBytes(JSON.toJSONString(iChannelStoreService.getByChannelId(channelId)).getBytes()));
+            ctx.channel().writeAndFlush(pubAckMessage);
             iChannelStoreService.removeChannelId(channelId);
+
         }
     }
+
 }

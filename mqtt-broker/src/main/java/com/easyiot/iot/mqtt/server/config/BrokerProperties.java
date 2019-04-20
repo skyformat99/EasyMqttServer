@@ -32,6 +32,11 @@ public class BrokerProperties {
      * WebSocket SSL端口号, 默认9993端口
      */
     private int webSocketSslPort = 9995;
+    /**
+     * webSocketPort
+     */
+    private int webSocketPort = 8885;
+
 
     /**
      * WebSocket Path值, 默认值 /mqtt
@@ -91,13 +96,19 @@ public class BrokerProperties {
 
     /**
      * UseSSL
+     *
      * @return
      */
-    private boolean useSSL=false;
+    private boolean useSSL = false;
+    /**
+     * useWebsocketSSL
+     */
+    private boolean useWebsocketSSL = false;
+
     /**
      * WEB 控制台的访问密码
      */
-    private String webConsoleToken="qsedftr45g656hbtreQ#Q$RWDQ";
+    private String webConsoleToken = "qsedftr45g656hbtreQ#Q$RWDQ";
 
     public String getWebConsoleToken() {
         return webConsoleToken;
@@ -117,6 +128,14 @@ public class BrokerProperties {
 
     public int getAuthType() {
         return authType;
+    }
+
+    public boolean isUseWebsocketSSL() {
+        return useWebsocketSSL;
+    }
+
+    public void setUseWebsocketSSL(boolean useWebsocketSSL) {
+        this.useWebsocketSSL = useWebsocketSSL;
     }
 
     public void setAuthType(int authType) {
@@ -236,5 +255,13 @@ public class BrokerProperties {
     public BrokerProperties setStaticIpAddresses(String staticIpAddresses) {
         this.staticIpAddresses = staticIpAddresses;
         return this;
+    }
+
+    public int getWebSocketPort() {
+        return webSocketPort;
+    }
+
+    public void setWebSocketPort(int webSocketPort) {
+        this.webSocketPort = webSocketPort;
     }
 }

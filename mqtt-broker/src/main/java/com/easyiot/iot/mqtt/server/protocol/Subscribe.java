@@ -29,7 +29,7 @@ public class Subscribe {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Subscribe.class);
 
-    private ISubscribeStoreService subscribeStoreService;
+    private ISubscribeStoreService iSubscribeStoreService;
 
     private IMessageIdService messageIdService;
 
@@ -41,7 +41,7 @@ public class Subscribe {
                      IMessageIdService messageIdService,
                      IRetainMessageStoreService retainMessageStoreService,
                      ITopicStoreService iTopicStoreService) {
-        this.subscribeStoreService = subscribeStoreService;
+        this.iSubscribeStoreService = subscribeStoreService;
         this.messageIdService = messageIdService;
         this.retainMessageStoreService = retainMessageStoreService;
         this.iTopicStoreService = iTopicStoreService;
@@ -60,14 +60,14 @@ public class Subscribe {
                 String topicFilter = topicSubscription.topicName();
                 MqttQoS mqttQoS = topicSubscription.qualityOfService();
                 SubscribeStore subscribeStore = new SubscribeStore(clientId, topicFilter, mqttQoS.value());
-                subscribeStoreService.put(topicFilter, subscribeStore);
+                iSubscribeStoreService.put(topicFilter, subscribeStore);
                 mqttQoSList.add(mqttQoS.value());
                 /**
-                 * 缓存TOPIC
+                 *  第一步：客户端上线的时候, 缓存TOPIC
                  */
-                TopicStore topicStore = new TopicStore(clientId, topicFilter, mqttQoS.value());
+                TopicStore topicStore = new TopicStore(clientId, channel.id().asLongText(), topicFilter, mqttQoS.value());
 
-                iTopicStoreService.put(channel.id().asLongText(), topicStore);
+                iTopicStoreService.save(topicStore);
 
                 LOGGER.info("SUBSCRIBE - clientId: {}, topFilter: {}, QoS: {}", clientId, topicFilter, mqttQoS.value());
             });
@@ -75,6 +75,7 @@ public class Subscribe {
 
              /**
              * SUBACK报文
+             * TODO 这里注意一下 本来要单独提出来一个类来实现的 后面再优化
              */
             MqttSubAckMessage subAckMessage = (MqttSubAckMessage) MqttMessageFactory.newMessage(
                     new MqttFixedHeader(MqttMessageType.SUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0),

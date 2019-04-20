@@ -1,8 +1,20 @@
 # EasyJMqttForIot-V0.0.1 用户文档
+# JmqttAPI地址:
+```https://documenter.getpostman.com/view/1700622/S11Prbq1```
+# 常见错误
+## Linux和MacOS下编译失败
 
+```
+报错信息:Caused by: org.apache.ignite.IgniteCheckedException: Work directory does not exist and cannot be created: /work”
+```
+
+## 解决方案
+```
+使用权限sudo java -jar  mqtt-broker-0.0.1.jar 可执行；否则报”/work”相关错误。
+```
 ## 1.软件简介
 
-> EasyJMqttForIot是一个用Java实现的轻量级Mqtt服务器，核心技术用了高的性能的异步网络框架Nwtty，我们把它用在物联网场景中，而且为物联网场景量身定制多个插件，以便于实现更多功能。
+> EasyJMqttForIot是一个用Java实现的轻量级Mqtt服务器，核心技术用了高的性能的异步网络框架Netty，我们把它用在物联网场景中，而且为物联网场景量身定制多个插件，以便于实现更多功能。
 >
 > 在以往的项目中，我们做的大部分业务是基于Java来实现的，同时用到了Mqtt，我们尝试了EMQ，Activemq，但是发现要么是编程语言不熟悉，要么是重量级，不适合物联网场景，我们希望能有一个适用于Java业务的Mqtt服务器，于是参考了各种基于Java的框架以后，发起了EasyJMqttForIot项目。旨在为Java程序员提供一个优秀的Iot解决方案。
 
@@ -14,7 +26,7 @@
 >
 > ```shell
 > mvn clear
-> mvn packge
+> mvn package
 > ```
 >
 > 然后会在target目录生成一个jar，windows下CMD（Linux直接执行）直接运行jar就可以:
@@ -158,6 +170,105 @@ interface BaseIgniteService<T> {
 }
 ```
 
+4.插件开发
+
+> 目前仅支持认证插件和消息处理插件，如有能力可自行扩展其他功能
+
+5.插件编写方式:
+
+1. 认证插件
+
+   > 认证插件需要重写：IAuthService的接口:
+
+   ```java
+   package com.easyiot.iot.mqtt.server.plugin
+   
+   import org.springframework.stereotype.Service
+   
+   @Service
+   class AuthPluginImp implements AuthPlugin{
+       @Override
+       boolean authByUsernameAndPassword(String username, String password) {
+       //这里可以加入数据库验证，如果成功返回true，失败返回false
+       //下面的都一样
+           return true
+       }
+   
+       @Override
+       boolean authByClientId(String clientId) {
+           return true
+       }
+   
+       @Override
+       boolean authByIp(String ipAddress) {
+           return true
+       }
+   
+   
+       @Override
+       def version() {
+           return "0.0.1"
+       }
+   
+       @Override
+       def name() {
+           return "Auth plugin"
+       }
+   
+   }
+   
+   ```
+
+   
+
+2. 消息处理插件
+
+   > 消息处理插件需要实现:MessagePersistencePlugin 接口，重写消息处理方法:
+
+   ```java
+   package com.easyiot.iot.mqtt.server.plugin
+   
+   import io.netty.channel.Channel
+   import io.netty.handler.codec.mqtt.MqttPublishMessage
+   import org.springframework.beans.factory.annotation.Autowired
+   import org.springframework.jdbc.core.JdbcTemplate
+   import org.springframework.stereotype.Service
+   
+   /**
+    * 消息持久化插件
+    * 实现 persistence 方法
+    * 比如：保存再MySql，或者MongoDB，都可以在这里实现
+    */
+   @Service
+   class MessagePersistencePluginImp implements MessagePersistencePlugin {
+       @Autowired
+       JdbcTemplate jdbcTemplate
+   
+       @Override
+       def persistence(Channel channel, MqttPublishMessage message) {
+           println("channel:" + channel.id() + " message:" + message.fixedHeader().isRetain())
+           if (message.fixedHeader().isRetain()) {
+               //保存 持久化 数据
+   
+           }
+   
+       }
+   
+   
+       @Override
+       def version() {
+           return "0.0.1"
+       }
+   
+       @Override
+       def name() {
+           return "Auth plugin"
+       }
+   
+   }
+   
+   ```
+
 ## 4.数据结构
 
 ##### 1.一个在线设备的描述
@@ -191,5 +302,12 @@ interface BaseIgniteService<T> {
 ```
 
 > 重点:这里有个设计思路：根据Netty的设计哲学，每一个连接进来的客户端，Netty都认为它是一个Channel，并且给这个Channel一个ID，从而实现标识。EasyMqttServer在设计的过程中参考了这种哲学吗，用ChannelId来表示每一个链接进来的客户端。
+
+## 特色功能：监控客户端上线下线
+> 只需要监控这两个Topic就可以了（注意：当开启认证权限的时候，客户端必须要有这两个客户端的订阅权限才可以接收消息）:
+```
+/$SYS/CLIENT/CONNECT:上线
+/$SYS/CLIENT/DISCONNECT：下线
+```
 
 # 如果有问题或者发现Bug，请及时反馈:751957846@qq.com

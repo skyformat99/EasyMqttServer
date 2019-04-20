@@ -1,4 +1,4 @@
-FROM recallcode/jdk:8u172
+FROM jdk:8u172
 
 RUN mkdir -p /opt/mqtt-broker/config && mkdir -p /opt/mqtt-broker/persistence
 

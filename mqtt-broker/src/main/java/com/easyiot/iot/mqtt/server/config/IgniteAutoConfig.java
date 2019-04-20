@@ -132,13 +132,19 @@ public class IgniteAutoConfig {
      */
 
     //topicCache
+
+    /**
+     * 这里用long做Index,保存设备订阅的topic
+     * @return
+     * @throws Exception
+     */
     @Bean
     public IgniteCache topicStoreCache() throws Exception {
         CacheConfiguration cacheConfiguration = new CacheConfiguration()
                 .setDataRegionName("not-persistence-data-region")
                 .setCacheMode(CacheMode.PARTITIONED)
                 .setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL)
-                .setIndexedTypes(String.class, TopicStore.class)
+                .setIndexedTypes(Long.class, TopicStore.class)
                 .setName("topicStoreCache");
         return ignite().getOrCreateCache(cacheConfiguration);
     }

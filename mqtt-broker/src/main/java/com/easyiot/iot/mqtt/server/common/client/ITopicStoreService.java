@@ -1,5 +1,7 @@
 package com.easyiot.iot.mqtt.server.common.client;
 
+import org.springframework.data.domain.Pageable;
+
 import javax.cache.Cache;
 import java.util.List;
 
@@ -7,33 +9,27 @@ import java.util.List;
  * Topic 缓存
  */
 public interface ITopicStoreService {
-    /**
-     * @param channelId
-     * @param topicStore
-     */
 
-    void put(String channelId, TopicStore topicStore);
+    void save(TopicStore topicStore);
 
-    /**
-     * @param channelId
-     * @return
-     */
+    void remove(long id);
 
-    TopicStore get(String channelId);
+    void update(TopicStore topicStore);
 
-    /**
-     *
-     */
-    void remove(String channelId);
 
-    /**
-     *
-     */
+    List<Cache.Entry<Long, TopicStore>> getByClientId(String clientId);
 
-    List<Cache.Entry<String, TopicStore>> listAll(int page, int size);
+    TopicStore getById(Long id);
 
-    /**
-     *
-     */
+
+    void removeByClientId(String clientId);
+
+    void removeByChannelId(String channelId);
+
+    List<Cache.Entry<Long, TopicStore>> listAll(Pageable pageable);
+
     int count();
+
+
+    boolean containsChannelId(String channelId);
 }
